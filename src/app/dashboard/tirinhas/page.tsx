@@ -125,6 +125,7 @@ export default function TirinhasPage() {
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => setSemanaInicio(prev => addDays(prev, -7))}
+          aria-label="Semana anterior"
           className="p-2 rounded-lg transition-all"
           style={{ border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)" }}
         >
@@ -137,6 +138,7 @@ export default function TirinhasPage() {
 
         <button
           onClick={() => setSemanaInicio(prev => addDays(prev, 7))}
+          aria-label="Próxima semana"
           className="p-2 rounded-lg transition-all"
           style={{ border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)" }}
         >

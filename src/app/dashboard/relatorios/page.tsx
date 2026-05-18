@@ -153,7 +153,7 @@ export default function RelatoriosPage() {
       <div className="flex items-center gap-3 mb-6 flex-wrap">
         {/* Navegação de mês */}
         <div className="flex items-center gap-2">
-          <button onClick={() => navMes(-1)} className="p-2 rounded-lg transition-all"
+          <button onClick={() => navMes(-1)} aria-label="Mês anterior" className="p-2 rounded-lg transition-all"
             style={{ border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)" }}>
             <ChevronLeft size={16} style={{ color: "var(--color-text-muted)" }} />
           </button>
@@ -161,7 +161,7 @@ export default function RelatoriosPage() {
             style={{ border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)", color: "var(--color-navy)" }}>
             {MESES[mes]} {ano}
           </div>
-          <button onClick={() => navMes(1)} className="p-2 rounded-lg transition-all"
+          <button onClick={() => navMes(1)} aria-label="Próximo mês" className="p-2 rounded-lg transition-all"
             style={{ border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)" }}>
             <ChevronRight size={16} style={{ color: "var(--color-text-muted)" }} />
           </button>
