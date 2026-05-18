@@ -31,12 +31,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="flex flex-col w-60 shrink-0 h-full" style={{ backgroundColor: "var(--color-navy)", borderRight: "1px solid var(--color-navy-medium)" }}>
 
         {/* Logo */}
-        <div className="flex items-center gap-2 px-6 py-5" style={{ borderBottom: "1px solid var(--color-navy-medium)" }}>
-          <span className="text-2xl font-extrabold" style={{ color: "var(--color-primary)" }}>imp</span>
-          <div>
-            <p className="text-xs font-semibold text-white leading-none">Grade</p>
-            <p className="text-xs font-semibold text-white leading-none">Horária</p>
-          </div>
+        <div className="flex items-center justify-center px-6 py-4" style={{ borderBottom: "1px solid var(--color-navy-medium)" }}>
+          <img src="/imp_concursos_logo.png" alt="IMP Concursos" style={{ width: 120, height: "auto", borderRadius: 8 }} />
         </div>
 
         {/* Nav */}
