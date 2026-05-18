@@ -1,26 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Cores IMP */
+  --color-primary: #E8193C;
+  --color-primary-hover: #C4152F;
+  --color-primary-light: #FDE8EC;
+  --color-navy: #1A1F36;
+  --color-navy-medium: #2D3354;
+  --color-background: #F7F8FC;
+  --color-surface: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-text-primary: #1A1F36;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Turnos */
+  --color-turno-matutino: #DBEAFE;
+  --color-turno-matutino-text: #1E40AF;
+  --color-turno-tarde: #FEF3C7;
+  --color-turno-tarde-text: #92400E;
+  --color-turno-noturno: #1E3A5F;
+  --color-turno-noturno-text: #FFFFFF;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Tipografia */
+  --font-body: var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --header-height: 64px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
 }
