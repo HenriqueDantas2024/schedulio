@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Users, BookOpen, Calendar, LayoutDashboard, LogOut, GraduationCap, Mail } from "lucide-react";
+import { Users, BookOpen, Calendar, LayoutDashboard, LogOut, GraduationCap, Mail, BarChart2 } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Início", icon: LayoutDashboard },
@@ -11,6 +11,7 @@ const navItems = [
   { href: "/dashboard/materias", label: "Matérias", icon: BookOpen },
   { href: "/dashboard/grade", label: "Grade Horária", icon: Calendar },
   { href: "/dashboard/tirinhas", label: "Tirinhas", icon: Mail },
+  { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart2 },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
