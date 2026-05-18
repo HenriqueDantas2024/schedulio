@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
-  BarChart2, Users, BookOpen, Calendar, GraduationCap,
+  BarChart2, Users, BookOpen, Calendar, GraduationCap, Printer,
 } from "lucide-react";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -271,13 +271,39 @@ export default function RelatoriosPage() {
   return (
     <div className="p-8">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-navy)" }}>Relatórios</h1>
-        <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Visão consolidada por professor, turma, grade e matéria.</p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-navy)" }}>Relatórios</h1>
+          <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>Visão consolidada por professor, turma, grade e matéria.</p>
+        </div>
+        <button
+          onClick={() => window.print()}
+          className="no-print flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+          style={{ border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)", color: "var(--color-text-secondary)" }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-primary)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-secondary)"; }}
+        >
+          <Printer size={14} /> Imprimir
+        </button>
+      </div>
+
+      {/* Print-only header */}
+      <div className="print-only mb-6" style={{ borderBottom: "2px solid var(--color-navy)", paddingBottom: "12px" }}>
+        <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-primary)" }}>IMP Concursos — Grade Horária</p>
+        <h2 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>
+          Relatório: {{ professores: "Professores", turmas: "Por Turma", grade: "Grade Completa", materias: "Por Matéria" }[aba]}
+        </h2>
+        <p className="text-sm mt-1" style={{ color: "var(--color-text-secondary)" }}>
+          {aba !== "grade"
+            ? `${MESES[mes]} ${ano}`
+            : `Semana de ${fmtDate(semanaInicio)} a ${fmtDate(semanaFim)}`}
+          {turmaFiltro ? ` · ${turmas.find(t => t.id === turmaFiltro)?.codigo ?? ""}` : " · Todas as turmas"}
+          {" · "}Gerado em {new Date().toLocaleDateString("pt-BR")}
+        </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 flex-wrap">
+      <div className="no-print flex gap-2 mb-6 flex-wrap">
         {([
           { id: "professores", label: "Professores", Icon: Users },
           { id: "turmas",      label: "Por Turma",   Icon: GraduationCap },
@@ -297,7 +323,7 @@ export default function RelatoriosPage() {
 
       {/* ── Shared filters (mês + turma) — hidden on grade tab (has own week nav) ── */}
       {aba !== "grade" && (
-        <div className="flex items-center gap-3 mb-6 flex-wrap">
+        <div className="no-print flex items-center gap-3 mb-6 flex-wrap">
           <div className="flex items-center gap-2">
             <button onClick={() => navMes(-1)} aria-label="Mês anterior" className="p-2 rounded-lg"
               style={{ border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)" }}>
@@ -512,7 +538,7 @@ export default function RelatoriosPage() {
       {aba === "grade" && (
         <>
           {/* Controls */}
-          <div className="flex items-center gap-3 mb-6 flex-wrap">
+          <div className="no-print flex items-center gap-3 mb-6 flex-wrap">
             <div className="flex items-center gap-2">
               <button onClick={() => setSemanaInicio(p => addDays(p, -7))} aria-label="Semana anterior"
                 className="p-2 rounded-lg" style={{ border: "1px solid var(--color-border)", backgroundColor: "var(--color-surface)" }}>

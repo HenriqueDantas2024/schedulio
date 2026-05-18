@@ -38,3 +38,35 @@ body {
   color: var(--color-text-primary);
   font-family: var(--font-body);
 }
+
+/* ── Print ─────────────────────────────────────────────────────────────────── */
+.no-print  { }
+.print-only { display: none; }
+
+@media print {
+  @page { margin: 1.5cm; }
+
+  /* Hide sidebar and make main full width */
+  aside { display: none !important; }
+  main  { width: 100% !important; overflow: visible !important; }
+
+  /* Fix the h-screen/overflow-hidden layout wrapper */
+  body > div,
+  .h-screen { height: auto !important; overflow: visible !important; display: block !important; }
+
+  /* Hide interactive elements */
+  .no-print { display: none !important; }
+
+  /* Show print-only elements */
+  .print-only { display: block !important; }
+
+  /* Preserve colors */
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Prevent rows from splitting across pages */
+  tr { break-inside: avoid; }
+
+  /* Fix grid overflow for Grade Completa */
+  .overflow-x-auto { overflow: visible !important; }
+  table { width: 100% !important; }
+}
