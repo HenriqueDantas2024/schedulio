@@ -9,20 +9,20 @@
 ## Roadmap de Implementação
 
 ### 🔵 FASE 01: FUNDAÇÃO
-**Status:** `🔄 Em Andamento`
-**Progresso:** 0/7 tarefas (0%)
+**Status:** `✅ Completa`
+**Progresso:** 7/7 tarefas (100%)
 
 #### Tarefas:
-- [ ] Criar repositório GitHub com branches dev / hml / main
-- [ ] Setup projeto Next.js 14 (App Router + TypeScript + Tailwind)
-- [ ] Configurar Supabase (projeto + banco de dados)
-- [ ] Conectar Vercel ao branch main (deploy automático)
-- [ ] Aplicar design tokens IMP (cores, tipografia, variáveis CSS)
-- [ ] Implementar autenticação de coordenadores (Supabase Auth)
-- [ ] Criar schema do banco de dados (tabelas: professores, turmas, materias, aulas, semanas)
+- [x] Criar repositório GitHub com branches dev / hml / main
+- [x] Setup projeto Next.js 16.2.6 (App Router + TypeScript + Tailwind)
+- [x] Configurar Supabase (projeto + banco de dados + RLS)
+- [x] Conectar Vercel ao branch main (deploy automático)
+- [x] Aplicar design tokens IMP (cores, tipografia, variáveis CSS)
+- [x] Implementar autenticação de coordenadores (Supabase Auth)
+- [x] Criar schema do banco de dados (tabelas: professores, turmas, materias, aulas, semanas)
 
-**Notas:** Windows 11. Projeto local em C:/Users/admin/grade-horaria-imp
-**Último trabalho:** —
+**Notas:** Windows 11. Next.js 16 usa proxy.ts (não middleware.ts). GitHub: github.com/HenriqueDantas2024/grade-horaria-imp | Vercel: grade-horaria-imp.vercel.app
+**Último trabalho:** 2026-05-15 — Auth completa, login page com identidade IMP, proxy de proteção de rotas, deploy na Vercel
 
 ---
 
