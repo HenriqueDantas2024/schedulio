@@ -62,7 +62,7 @@ export default function TirinhasPage() {
 
     const [{ data: profs }, { data: semana }] = await Promise.all([
       supabase.from("professores").select("id, nome, email").order("nome"),
-      supabase.from("semanas").select("id").eq("inicio", semanaInicio).eq("fim", semanaFim).maybeSingle(),
+      supabase.from("semanas").select("id").eq("data_inicio", semanaInicio).eq("data_fim", semanaFim).maybeSingle(),
     ]);
 
     setProfessores(profs ?? []);

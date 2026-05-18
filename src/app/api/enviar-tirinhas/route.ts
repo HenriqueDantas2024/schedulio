@@ -45,8 +45,8 @@ export async function POST(req: NextRequest) {
   const { data: semana } = await supabase
     .from("semanas")
     .select("id")
-    .eq("inicio", semana_inicio)
-    .eq("fim", semana_fim)
+    .eq("data_inicio", semana_inicio)
+    .eq("data_fim", semana_fim)
     .single();
 
   if (!semana) {
