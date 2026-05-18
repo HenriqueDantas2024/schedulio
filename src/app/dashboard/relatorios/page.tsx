@@ -11,7 +11,9 @@ interface LinhaRelatorio {
   professor_nome: string;
   total_aulas: number;
   total_horas: number;
-  detalhes: { materia: string; turma: string; aulas: number; horas: number }[];
+  aulas_dadas: number;
+  horas_dadas: number;
+  detalhes: { materia: string; turma: string; aulas: number; horas: number; dadas: number; horas_dadas: number }[];
 }
 
 const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -56,7 +58,7 @@ export default function RelatoriosPage() {
 
     let query = supabase
       .from("aulas")
-      .select("professor_id, carga_horaria, professores(nome), materias(nome), turmas(codigo, concurso)")
+      .select("professor_id, carga_horaria, realizada, professores(nome), materias(nome), turmas(codigo, concurso)")
       .in("semana_id", semanaIds);
 
     if (turmaFiltro) query = query.eq("turma_id", turmaFiltro);
@@ -84,6 +86,8 @@ export default function RelatoriosPage() {
           professor_nome: prof.nome,
           total_aulas: 0,
           total_horas: 0,
+          aulas_dadas: 0,
+          horas_dadas: 0,
           detalhes: [],
         });
       }
@@ -91,14 +95,22 @@ export default function RelatoriosPage() {
       const linha = map.get(a.professor_id)!;
       linha.total_aulas += 1;
       linha.total_horas += Number(a.carga_horaria);
+      if (a.realizada) { linha.aulas_dadas += 1; linha.horas_dadas += Number(a.carga_horaria); }
 
-      const chave = `${mat?.nome ?? "—"}|${tur?.codigo ?? "—"}`;
       const det = linha.detalhes.find(d => d.materia === (mat?.nome ?? "—") && d.turma === (tur?.codigo ?? "—"));
       if (det) {
         det.aulas += 1;
         det.horas += Number(a.carga_horaria);
+        if (a.realizada) { det.dadas += 1; det.horas_dadas += Number(a.carga_horaria); }
       } else {
-        linha.detalhes.push({ materia: mat?.nome ?? "—", turma: tur?.codigo ?? "—", aulas: 1, horas: Number(a.carga_horaria) });
+        linha.detalhes.push({
+          materia: mat?.nome ?? "—",
+          turma: tur?.codigo ?? "—",
+          aulas: 1,
+          horas: Number(a.carga_horaria),
+          dadas: a.realizada ? 1 : 0,
+          horas_dadas: a.realizada ? Number(a.carga_horaria) : 0,
+        });
       }
     }
 
@@ -117,6 +129,8 @@ export default function RelatoriosPage() {
 
   const totalHoras = linhas.reduce((s, l) => s + l.total_horas, 0);
   const totalAulas = linhas.reduce((s, l) => s + l.total_aulas, 0);
+  const totalHorasDadas = linhas.reduce((s, l) => s + l.horas_dadas, 0);
+  const totalAulasDadas = linhas.reduce((s, l) => s + l.aulas_dadas, 0);
 
   return (
     <div className="p-8">
@@ -169,15 +183,21 @@ export default function RelatoriosPage() {
       ) : (
         <>
           {/* Resumo geral */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             {[
-              { label: "Professores ativos", valor: linhas.length },
-              { label: "Total de aulas", valor: totalAulas },
-              { label: "Total de horas", valor: `${Math.round(totalHoras * 100) / 100}h` },
-            ].map(({ label, valor }) => (
+              { label: "Professores ativos", valor: String(linhas.length), sub: null },
+              { label: "Aulas lançadas", valor: String(totalAulas), sub: `${totalAulasDadas} dadas` },
+              { label: "Horas lançadas", valor: `${Math.round(totalHoras * 100) / 100}h`, sub: `${Math.round(totalHorasDadas * 100) / 100}h dadas` },
+              {
+                label: "Aproveitamento",
+                valor: totalAulas > 0 ? `${Math.round((totalAulasDadas / totalAulas) * 100)}%` : "—",
+                sub: null,
+              },
+            ].map(({ label, valor, sub }) => (
               <div key={label} className="p-5 rounded-xl" style={{ backgroundColor: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
                 <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--color-text-muted)" }}>{label}</p>
                 <p className="text-2xl font-bold" style={{ color: "var(--color-navy)" }}>{valor}</p>
+                {sub && <p className="text-xs mt-1 font-semibold" style={{ color: "#16A34A" }}>{sub}</p>}
               </div>
             ))}
           </div>
@@ -187,10 +207,11 @@ export default function RelatoriosPage() {
             {/* Cabeçalho */}
             <div className="grid grid-cols-12 px-5 py-3 text-xs font-bold uppercase tracking-wide"
               style={{ backgroundColor: "var(--color-surface)", borderBottom: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
-              <span className="col-span-5">Professor</span>
-              <span className="col-span-2 text-center">Aulas</span>
-              <span className="col-span-2 text-center">Horas</span>
-              <span className="col-span-3"></span>
+              <span className="col-span-4">Professor</span>
+              <span className="col-span-2 text-center">Lançadas</span>
+              <span className="col-span-2 text-center">Dadas</span>
+              <span className="col-span-2 text-center">Horas Dadas</span>
+              <span className="col-span-2"></span>
             </div>
 
             {linhas.map((l, i) => (
@@ -203,12 +224,15 @@ export default function RelatoriosPage() {
                   onMouseEnter={e => { if (expandido !== l.professor_id) (e.currentTarget as HTMLDivElement).style.backgroundColor = "var(--color-background)"; }}
                   onMouseLeave={e => { if (expandido !== l.professor_id) (e.currentTarget as HTMLDivElement).style.backgroundColor = "transparent"; }}
                 >
-                  <span className="col-span-5 font-semibold text-sm" style={{ color: "var(--color-navy)" }}>{l.professor_nome}</span>
+                  <span className="col-span-4 font-semibold text-sm" style={{ color: "var(--color-navy)" }}>{l.professor_nome}</span>
                   <span className="col-span-2 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>{l.total_aulas}</span>
-                  <span className="col-span-2 text-center font-bold text-sm" style={{ color: "var(--color-primary)" }}>
-                    {Math.round(l.total_horas * 100) / 100}h
+                  <span className="col-span-2 text-center text-sm font-semibold" style={{ color: l.aulas_dadas === l.total_aulas ? "#16A34A" : "var(--color-text-secondary)" }}>
+                    {l.aulas_dadas}
                   </span>
-                  <div className="col-span-3 flex justify-end">
+                  <span className="col-span-2 text-center font-bold text-sm" style={{ color: "var(--color-primary)" }}>
+                    {Math.round(l.horas_dadas * 100) / 100}h
+                  </span>
+                  <div className="col-span-2 flex justify-end">
                     {expandido === l.professor_id
                       ? <ChevronUp size={14} style={{ color: "var(--color-text-muted)" }} />
                       : <ChevronDown size={14} style={{ color: "var(--color-text-muted)" }} />
@@ -224,8 +248,9 @@ export default function RelatoriosPage() {
                         <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
                           <th className="py-2 text-left font-semibold" style={{ color: "var(--color-text-muted)" }}>Disciplina</th>
                           <th className="py-2 text-left font-semibold" style={{ color: "var(--color-text-muted)" }}>Turma</th>
-                          <th className="py-2 text-center font-semibold" style={{ color: "var(--color-text-muted)" }}>Aulas</th>
-                          <th className="py-2 text-center font-semibold" style={{ color: "var(--color-text-muted)" }}>Horas</th>
+                          <th className="py-2 text-center font-semibold" style={{ color: "var(--color-text-muted)" }}>Lançadas</th>
+                          <th className="py-2 text-center font-semibold" style={{ color: "var(--color-text-muted)" }}>Dadas</th>
+                          <th className="py-2 text-center font-semibold" style={{ color: "var(--color-text-muted)" }}>Horas Dadas</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -236,7 +261,8 @@ export default function RelatoriosPage() {
                               <td className="py-2" style={{ color: "var(--color-text-primary)" }}>{d.materia}</td>
                               <td className="py-2 font-mono" style={{ color: "var(--color-text-secondary)" }}>{d.turma}</td>
                               <td className="py-2 text-center" style={{ color: "var(--color-text-secondary)" }}>{d.aulas}</td>
-                              <td className="py-2 text-center font-semibold" style={{ color: "var(--color-navy)" }}>{Math.round(d.horas * 100) / 100}h</td>
+                              <td className="py-2 text-center font-semibold" style={{ color: d.dadas === d.aulas ? "#16A34A" : "var(--color-text-secondary)" }}>{d.dadas}</td>
+                              <td className="py-2 text-center font-semibold" style={{ color: "var(--color-navy)" }}>{Math.round(d.horas_dadas * 100) / 100}h</td>
                             </tr>
                           ))}
                       </tbody>

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import { Plus, Trash2, ChevronLeft, ChevronRight, Copy } from "lucide-react";
+import { Plus, Trash2, ChevronLeft, ChevronRight, Copy, CheckCircle2, Circle } from "lucide-react";
 
 const DIAS = [
   { key: "segunda", label: "Segunda" },
@@ -30,6 +30,7 @@ interface Aula {
   carga_horaria: number;
   professor_id: string;
   materia_id: string;
+  realizada: boolean;
   professores: { nome: string };
   materias: { nome: string };
 }
@@ -156,6 +157,11 @@ export default function TabGrade({ turmaId, turno }: { turmaId: string; turno: s
     load();
   }
 
+  async function handleToggleRealizada(id: string, atual: boolean) {
+    await supabase.from("aulas").update({ realizada: !atual }).eq("id", id);
+    setAulas(prev => prev.map(a => a.id === id ? { ...a, realizada: !atual } : a));
+  }
+
   async function handleCopiarSemana() {
     if (!semanaId || aulas.length === 0) return;
     if (!confirm("Copiar todas as aulas desta semana para a próxima?")) return;
@@ -242,20 +248,32 @@ export default function TabGrade({ turmaId, turno }: { turmaId: string; turno: s
                     </button>
                   </div>
                   {aulasHoje.map(a => (
-                    <div key={a.id} className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid var(--color-border)" }}>
+                    <div key={a.id} className="flex items-center justify-between px-4 py-3 transition-all" style={{ borderBottom: "1px solid var(--color-border)", opacity: a.realizada ? 0.6 : 1 }}>
                       <div className="flex items-center gap-3">
-                        <span className="px-2 py-0.5 rounded text-xs font-semibold" style={TURNO_STYLES[a.turno]}>
+                        <span className="px-2 py-0.5 rounded text-xs font-semibold" style={a.realizada ? { backgroundColor: "#D1FAE5", color: "#065F46" } : TURNO_STYLES[a.turno]}>
                           {a.horario_inicio.slice(0, 5)} – {a.horario_fim.slice(0, 5)}
                         </span>
                         <div>
-                          <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>{a.professores.nome}</p>
+                          <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)", textDecoration: a.realizada ? "line-through" : "none" }}>{a.professores.nome}</p>
                           <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{a.materias.nome} · {a.carga_horaria}h</p>
                         </div>
                       </div>
-                      <button onClick={() => handleDelete(a.id)} className="p-1.5 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
-                      ><Trash2 size={13} /></button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleToggleRealizada(a.id, a.realizada)}
+                          title={a.realizada ? "Marcar como não realizada" : "Marcar como realizada"}
+                          className="p-1.5 rounded-lg transition-all"
+                          style={{ color: a.realizada ? "#16A34A" : "var(--color-text-muted)" }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = a.realizada ? "#D1FAE5" : "#F0FDF4"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; }}
+                        >
+                          {a.realizada ? <CheckCircle2 size={16} /> : <Circle size={16} />}
+                        </button>
+                        <button onClick={() => handleDelete(a.id)} className="p-1.5 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
+                        ><Trash2 size={13} /></button>
+                      </div>
                     </div>
                   ))}
                 </div>
