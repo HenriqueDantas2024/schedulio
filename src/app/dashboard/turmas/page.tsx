@@ -6,7 +6,8 @@ import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Turma { id: string; codigo: string; concurso: string; local: string; turno: string; data_inicio: string; status: string; }
 
@@ -20,6 +21,7 @@ const TURNO_STYLES: Record<string, React.CSSProperties> = {
 export default function TurmasPage() {
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Turma | null>(null);
   const [form, setForm] = useState({ codigo: "", concurso: "", local: "", turno: "M", data_inicio: "" });
@@ -99,6 +101,11 @@ export default function TurmasPage() {
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2 justify-end">
+                      <button onClick={() => router.push(`/dashboard/turmas/${t.id}`)} className="p-1.5 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-border)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-navy)"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
+                        title="Abrir turma"
+                      ><ChevronRight size={14} /></button>
                       <button onClick={() => openEdit(t)} className="p-1.5 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
                         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-border)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-navy)"; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
