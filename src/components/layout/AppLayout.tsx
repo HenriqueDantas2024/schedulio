@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useUserRole } from "@/lib/hooks/useUserRole";
-import { Users, BookOpen, Calendar, LayoutDashboard, LogOut, Mail, BarChart2, DollarSign } from "lucide-react";
+import { Users, BookOpen, Calendar, LayoutDashboard, LogOut, Mail, BarChart2, DollarSign, UserCircle } from "lucide-react";
 
 const allNavItems = [
   { href: "/dashboard", label: "Início", icon: LayoutDashboard, roles: ["coordenador", "diretor"] },
@@ -19,10 +20,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { role } = useUserRole();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null);
+    });
+  }, []);
 
   const navItems = allNavItems.filter(item =>
     role ? item.roles.includes(role) : item.roles.includes("coordenador")
   );
+
+  const roleLabel = role === "diretor" ? "Diretor" : "Coordenador";
+  const emailShort = userEmail ? userEmail.split("@")[0] : "—";
 
   async function handleLogout() {
     const supabase = createClient();
@@ -65,8 +77,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* Logout */}
+        {/* User info + Logout */}
         <div className="p-3" style={{ borderTop: "1px solid var(--color-navy-medium)" }}>
+          {/* User card */}
+          <div className="flex items-center gap-2.5 px-3 py-2.5 mb-1 rounded-lg" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
+            <div className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--color-primary)" }}>
+              <UserCircle size={16} color="#fff" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold truncate" style={{ color: "#fff" }}>{emailShort}</p>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{roleLabel}</p>
+            </div>
+          </div>
+
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all"
