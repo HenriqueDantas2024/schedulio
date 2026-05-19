@@ -87,15 +87,15 @@
 ---
 
 ### 🆕 FASE 07: MÓDULO DE PAGAMENTOS
-**Status:** `🔄 Em Andamento`
-**Progresso:** 0/5 tarefas (0%)
+**Status:** `✅ Completa`
+**Progresso:** 5/5 tarefas (100%)
 
 #### Tarefas:
-- [ ] Migration: campo valor_hora_aula em professores + tabela pagamentos
-- [ ] Atualizar UI de Professores com campo valor hora/aula
-- [ ] Página /dashboard/pagamentos (abas Semanal e Mensal)
-- [ ] API route /api/enviar-pagamento (email de resumo)
-- [ ] Nav item Pagamentos na sidebar
+- [x] Migration: campo valor_hora_aula em professores + tabela pagamentos
+- [x] Atualizar UI de Professores com campo valor hora/aula
+- [x] Página /dashboard/pagamentos (abas Semanal e Mensal)
+- [x] API route /api/enviar-pagamento (email de resumo)
+- [x] Nav item Pagamentos na sidebar
 
 ---
 
@@ -110,3 +110,4 @@
 | 2026-05-15 | Especificação completa com Shiva. Roadmap criado com Hades. Fase 01 iniciada. |
 | 2026-05-15–18 | Fases 02–06 completas. Sistema em produção. Seed dados SEDES/DF. |
 | 2026-05-19 | Shiva especificou módulo de pagamentos (MoSCoW). Hades planejou Fase 07. |
+| 2026-05-19 | Atlas implementou Fase 07 completa: migration, UI professores, /dashboard/pagamentos, API email, nav. Deploy em produção. |
