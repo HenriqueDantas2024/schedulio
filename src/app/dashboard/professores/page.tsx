@@ -8,7 +8,7 @@ import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
-interface Professor { id: string; nome: string; email: string; ativo: boolean; }
+interface Professor { id: string; nome: string; email: string; ativo: boolean; valor_hora_aula: number; }
 
 export default function ProfessoresPage() {
   const [professores, setProfessores] = useState<Professor[]>([]);
@@ -17,6 +17,7 @@ export default function ProfessoresPage() {
   const [editing, setEditing] = useState<Professor | null>(null);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
+  const [valorHora, setValorHora] = useState("");
   const [saving, setSaving] = useState(false);
   const supabase = createClient();
 
@@ -28,16 +29,17 @@ export default function ProfessoresPage() {
 
   useEffect(() => { load(); }, []);
 
-  function openNew() { setEditing(null); setNome(""); setEmail(""); setModalOpen(true); }
-  function openEdit(p: Professor) { setEditing(p); setNome(p.nome); setEmail(p.email); setModalOpen(true); }
+  function openNew() { setEditing(null); setNome(""); setEmail(""); setValorHora(""); setModalOpen(true); }
+  function openEdit(p: Professor) { setEditing(p); setNome(p.nome); setEmail(p.email); setValorHora(p.valor_hora_aula ? String(p.valor_hora_aula) : ""); setModalOpen(true); }
 
   async function handleSave() {
     if (!nome.trim() || !email.trim()) return;
     setSaving(true);
+    const payload = { nome, email, valor_hora_aula: valorHora ? Number(valorHora) : 0 };
     if (editing) {
-      await supabase.from("professores").update({ nome, email }).eq("id", editing.id);
+      await supabase.from("professores").update(payload).eq("id", editing.id);
     } else {
-      await supabase.from("professores").insert({ nome, email });
+      await supabase.from("professores").insert(payload);
     }
     setSaving(false);
     setModalOpen(false);
@@ -48,6 +50,10 @@ export default function ProfessoresPage() {
     if (!confirm("Remover este professor?")) return;
     await supabase.from("professores").delete().eq("id", id);
     load();
+  }
+
+  function fmtMoeda(v: number) {
+    return v > 0 ? v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—";
   }
 
   return (
@@ -72,6 +78,7 @@ export default function ProfessoresPage() {
               <tr style={{ borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-background)" }}>
                 <th className="text-left px-5 py-3 font-semibold text-xs uppercase tracking-wide" style={{ color: "var(--color-text-secondary)" }}>Nome</th>
                 <th className="text-left px-5 py-3 font-semibold text-xs uppercase tracking-wide" style={{ color: "var(--color-text-secondary)" }}>Email</th>
+                <th className="text-right px-5 py-3 font-semibold text-xs uppercase tracking-wide" style={{ color: "var(--color-text-secondary)" }}>Valor Hora/Aula</th>
                 <th className="px-5 py-3 w-20"></th>
               </tr>
             </thead>
@@ -83,6 +90,9 @@ export default function ProfessoresPage() {
                 >
                   <td className="px-5 py-3.5 font-medium" style={{ color: "var(--color-text-primary)" }}>{p.nome}</td>
                   <td className="px-5 py-3.5" style={{ color: "var(--color-text-secondary)" }}>{p.email}</td>
+                  <td className="px-5 py-3.5 text-right font-semibold" style={{ color: p.valor_hora_aula > 0 ? "#16A34A" : "var(--color-text-muted)" }}>
+                    {fmtMoeda(p.valor_hora_aula)}
+                  </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2 justify-end">
                       <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
@@ -106,6 +116,7 @@ export default function ProfessoresPage() {
         <div className="flex flex-col gap-4">
           <Input label="Nome completo" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Leandro Pereira" />
           <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="professor@email.com" />
+          <Input label="Valor Hora/Aula (R$)" type="number" value={valorHora} onChange={(e) => setValorHora(e.target.value)} placeholder="0,00" />
           <div className="flex gap-3 justify-end pt-2">
             <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancelar</Button>
             <Button onClick={handleSave} disabled={saving}>{saving ? "Salvando..." : "Salvar"}</Button>

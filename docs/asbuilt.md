@@ -1,8 +1,8 @@
 # Grade Horária IMP — As Built
 
 **Descrição:** Sistema web de gestão de grade horária para o IMP Concursos. Substitui planilhas manuais com 29 abas, eliminando copia-cola e envio artesanal de emails para ~60 professores.
-**Stack:** GitHub + Supabase + Vercel + Next.js 14
-**Última atualização:** 2026-05-15
+**Stack:** GitHub + Supabase + Vercel + Next.js 16.2.6
+**Última atualização:** 2026-05-19
 
 ---
 
@@ -27,59 +27,75 @@
 ---
 
 ### 🟡 FASE 02: CADASTROS
-**Status:** `⏳ Aguardando`
-**Progresso:** 0/3 tarefas (0%)
+**Status:** `✅ Completa`
+**Progresso:** 3/3 tarefas (100%)
 
 #### Tarefas:
-- [ ] Tela de cadastro e listagem de Professores
-- [ ] Tela de cadastro e listagem de Turmas
-- [ ] Tela de cadastro de Matérias/Disciplinas
+- [x] Tela de cadastro e listagem de Professores (com vínculo de matérias)
+- [x] Tela de cadastro e listagem de Turmas (com disciplinas e professores por turma)
+- [x] Tela de cadastro de Matérias/Disciplinas
 
 ---
 
 ### 🟠 FASE 03: GRADE HORÁRIA
-**Status:** `⏳ Aguardando`
-**Progresso:** 0/4 tarefas (0%)
+**Status:** `✅ Completa`
+**Progresso:** 4/4 tarefas (100%)
 
 #### Tarefas:
-- [ ] Interface de montagem da grade semanal por turma
-- [ ] CRUD de slots (dia + turno + professor + matéria + horário + carga horária)
-- [ ] Suporte a professor em múltiplas turmas na mesma semana
-- [ ] Visualização geral da grade montada
+- [x] Interface de montagem da grade semanal por turma (TabGrade)
+- [x] CRUD de slots (dia + turno + professor + matéria + horário + carga horária)
+- [x] Controle de aula realizada (toggle realizada/pendente por slot)
+- [x] Visualização geral da grade montada
 
 ---
 
 ### 🔴 FASE 04: TIRINHAS E EMAIL
-**Status:** `⏳ Aguardando`
-**Progresso:** 0/4 tarefas (0%)
+**Status:** `✅ Completa`
+**Progresso:** 4/4 tarefas (100%)
 
 #### Tarefas:
-- [ ] Geração automática da tirinha individual por professor
-- [ ] Preview da tirinha antes do envio
-- [ ] Envio com um clique (individual ou em massa)
-- [ ] Template de email com tirinha formatada
+- [x] Listagem de professores com aulas na semana selecionada
+- [x] Envio individual e em massa da grade semanal por email (Resend)
+- [x] Navegação por semana
+- [x] API route /api/enviar-tirinhas
 
 ---
 
 ### 🟣 FASE 05: RELATÓRIOS
-**Status:** `⏳ Aguardando`
-**Progresso:** 0/2 tarefas (0%)
+**Status:** `✅ Completa`
+**Progresso:** 4/4 tarefas (100%)
 
 #### Tarefas:
-- [ ] Relatório de horas por professor no mês
-- [ ] Filtros por período e professor
+- [x] Aba Professores — horas lançadas vs dadas, filtros mês/turma/professor
+- [x] Aba Por Turma — progresso por disciplina com barra %
+- [x] Aba Grade Completa — grid semanal dias × horários
+- [x] Aba Por Matéria — horas por matéria com professores e breakdown por turma
+- [x] Impressão (botão Imprimir + CSS @media print)
 
 ---
 
 ### ✅ FASE 06: PRODUÇÃO
-**Status:** `⏳ Aguardando`
-**Progresso:** 0/4 tarefas (0%)
+**Status:** `✅ Completa`
+**Progresso:** 4/4 tarefas (100%)
 
 #### Tarefas:
-- [ ] QA completo com Ravena
-- [ ] Auditoria de segurança com Kerberos
-- [ ] Deploy final na Vercel (main)
-- [ ] Sistema em produção
+- [x] QA completo com Ravena (nav, aria-labels, tirinhas, grade)
+- [x] Auditoria de segurança com Kerberos (headers HTTP, RLS confirmado)
+- [x] Deploy na Vercel — grade-horaria-imp.vercel.app
+- [x] Dashboard redesenhado (hero slideshow, KPIs em tempo real, logo IMP)
+
+---
+
+### 🆕 FASE 07: MÓDULO DE PAGAMENTOS
+**Status:** `🔄 Em Andamento`
+**Progresso:** 0/5 tarefas (0%)
+
+#### Tarefas:
+- [ ] Migration: campo valor_hora_aula em professores + tabela pagamentos
+- [ ] Atualizar UI de Professores com campo valor hora/aula
+- [ ] Página /dashboard/pagamentos (abas Semanal e Mensal)
+- [ ] API route /api/enviar-pagamento (email de resumo)
+- [ ] Nav item Pagamentos na sidebar
 
 ---
 
@@ -92,3 +108,5 @@
 | Data | O que foi feito |
 |------|----------------|
 | 2026-05-15 | Especificação completa com Shiva. Roadmap criado com Hades. Fase 01 iniciada. |
+| 2026-05-15–18 | Fases 02–06 completas. Sistema em produção. Seed dados SEDES/DF. |
+| 2026-05-19 | Shiva especificou módulo de pagamentos (MoSCoW). Hades planejou Fase 07. |

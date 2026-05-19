@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Users, BookOpen, Calendar, LayoutDashboard, LogOut, Mail, BarChart2 } from "lucide-react";
+import { Users, BookOpen, Calendar, LayoutDashboard, LogOut, Mail, BarChart2, DollarSign } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Início", icon: LayoutDashboard },
@@ -10,6 +10,7 @@ const navItems = [
   { href: "/dashboard/materias", label: "Matérias", icon: BookOpen },
   { href: "/dashboard/turmas", label: "Grade Horária", icon: Calendar },
   { href: "/dashboard/tirinhas", label: "Tirinhas", icon: Mail },
+  { href: "/dashboard/pagamentos", label: "Pagamentos", icon: DollarSign },
   { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart2 },
 ];
 
