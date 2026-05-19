@@ -53,26 +53,12 @@ export default function PagamentosPage() {
   const supabase = createClient();
   const hoje = new Date();
 
-  useEffect(() => {
-    if (!roleLoading && role !== "diretor") {
-      router.replace("/dashboard");
-    }
-  }, [role, roleLoading, router]);
-
-  if (roleLoading || role !== "diretor") {
-    return (
-      <div className="flex items-center justify-center h-full" style={{ color: "var(--color-text-muted)" }}>
-        <Loader2 size={24} className="animate-spin" />
-      </div>
-    );
-  }
-
+  // ── State (todos os hooks antes de qualquer return condicional) ───────────
   const [aba, setAba] = useState<Aba>("semanal");
   const [semanaInicio, setSemanaInicio] = useState(() => getMondayOf(hoje.toISOString().slice(0, 10)));
   const semanaFim = addDays(semanaInicio, 5);
   const [mes, setMes] = useState(hoje.getMonth());
   const [ano, setAno] = useState(hoje.getFullYear());
-
   const [linhas, setLinhas] = useState<LinhaPagamento[]>([]);
   const [loading, setLoading] = useState(false);
   const [marcando, setMarcando] = useState<string | null>(null);
@@ -88,7 +74,6 @@ export default function PagamentosPage() {
       ? semanaInicio
       : `${ano}-${String(mes + 1).padStart(2, "0")}-01`;
 
-    // Buscar semana(s) do período
     let semanaIds: string[] = [];
     if (aba === "semanal") {
       const { data: s } = await supabase.from("semanas").select("id")
@@ -103,7 +88,6 @@ export default function PagamentosPage() {
 
     if (!semanaIds.length) { setLinhas([]); setLoading(false); return; }
 
-    // Aulas realizadas
     const { data: aulas } = await supabase.from("aulas")
       .select("professor_id, carga_horaria, professores(id, nome, email, valor_hora_aula)")
       .in("semana_id", semanaIds)
@@ -111,7 +95,6 @@ export default function PagamentosPage() {
 
     if (!aulas?.length) { setLinhas([]); setLoading(false); return; }
 
-    // Agrupar por professor
     const map = new Map<string, LinhaPagamento>();
     for (const a of aulas) {
       const prof = (Array.isArray(a.professores) ? a.professores[0] : a.professores) as
@@ -133,7 +116,6 @@ export default function PagamentosPage() {
       linha.total_valor = r2(linha.total_horas * linha.valor_hora);
     }
 
-    // Status de pagamento
     const ids = Array.from(map.keys());
     const { data: pagtos } = await supabase.from("pagamentos")
       .select("professor_id, status, pago_em")
@@ -151,6 +133,22 @@ export default function PagamentosPage() {
   }, [aba, semanaInicio, mes, ano]);
 
   useEffect(() => { load(); }, [load]);
+
+  // ── Guard de acesso ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!roleLoading && role !== "diretor") {
+      router.replace("/dashboard");
+    }
+  }, [role, roleLoading, router]);
+
+  // ── Early return (após todos os hooks) ─────────────────────────────────────
+  if (roleLoading || role !== "diretor") {
+    return (
+      <div className="flex items-center justify-center h-full" style={{ color: "var(--color-text-muted)" }}>
+        <Loader2 size={24} className="animate-spin" />
+      </div>
+    );
+  }
 
   // ── Marcar pago / pendente ──────────────────────────────────────────────────
   async function marcarPago(prof: LinhaPagamento) {
@@ -331,7 +329,6 @@ export default function PagamentosPage() {
 
           {/* Tabela */}
           <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
-            {/* Cabeçalho */}
             <div className="grid grid-cols-12 px-5 py-3 text-xs font-bold uppercase tracking-wide"
               style={{ backgroundColor: "var(--color-surface)", borderBottom: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
               <span className="col-span-3">Professor</span>
@@ -348,13 +345,11 @@ export default function PagamentosPage() {
                 <div className="grid grid-cols-12 px-5 py-4 items-center"
                   style={{ backgroundColor: l.status === "pago" ? "#F0FDF4" : "transparent" }}>
 
-                  {/* Professor */}
                   <div className="col-span-3">
                     <p className="font-semibold text-sm" style={{ color: "var(--color-navy)" }}>{l.professor_nome}</p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{l.professor_email}</p>
                   </div>
 
-                  {/* Valor/hora */}
                   <div className="col-span-2 text-center">
                     {l.valor_hora > 0
                       ? <span className="text-sm font-medium" style={{ color: "var(--color-text-secondary)" }}>{fmtMoeda(l.valor_hora)}</span>
@@ -362,17 +357,14 @@ export default function PagamentosPage() {
                     }
                   </div>
 
-                  {/* Horas */}
                   <span className="col-span-2 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
                     {r2(l.total_horas)}h
                   </span>
 
-                  {/* Total */}
                   <span className="col-span-2 text-center font-extrabold text-sm" style={{ color: "var(--color-primary)" }}>
                     {fmtMoeda(l.total_valor)}
                   </span>
 
-                  {/* Status badge */}
                   <div className="col-span-1 text-center">
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold"
                       style={{
@@ -384,14 +376,10 @@ export default function PagamentosPage() {
                     </span>
                   </div>
 
-                  {/* Ações */}
                   <div className="col-span-2 no-print flex items-center gap-2 justify-end">
-                    {/* Feedback envio */}
                     {feedbackEnvio[l.professor_id] === "ok" && (
                       <CheckCircle size={14} style={{ color: "#16A34A" }} />
                     )}
-
-                    {/* Enviar email */}
                     <Button size="sm" variant="ghost"
                       onClick={() => enviarEmail(l)}
                       disabled={enviando !== null || marcando !== null}>
@@ -400,8 +388,6 @@ export default function PagamentosPage() {
                         : <Send size={12} />}
                       Enviar
                     </Button>
-
-                    {/* Marcar pago */}
                     <Button size="sm"
                       variant={l.status === "pago" ? "ghost" : "primary"}
                       onClick={() => marcarPago(l)}
