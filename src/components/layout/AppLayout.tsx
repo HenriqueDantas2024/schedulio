@@ -4,16 +4,20 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useUserRole } from "@/lib/hooks/useUserRole";
-import { Users, BookOpen, Calendar, LayoutDashboard, LogOut, Mail, BarChart2, DollarSign, UserCircle } from "lucide-react";
+import {
+  HouseSimple, Users, BookOpenText, CalendarDots,
+  EnvelopeSimple, CurrencyDollar, ChartLineUp,
+  SignOut, UserCircle,
+} from "@phosphor-icons/react";
 
 const allNavItems = [
-  { href: "/dashboard", label: "Início", icon: LayoutDashboard, roles: ["coordenador", "diretor"] },
-  { href: "/dashboard/professores", label: "Professores", icon: Users, roles: ["coordenador", "diretor"] },
-  { href: "/dashboard/materias", label: "Matérias", icon: BookOpen, roles: ["coordenador", "diretor"] },
-  { href: "/dashboard/turmas", label: "Grade Horária", icon: Calendar, roles: ["coordenador", "diretor"] },
-  { href: "/dashboard/tirinhas", label: "Tirinhas", icon: Mail, roles: ["coordenador", "diretor"] },
-  { href: "/dashboard/pagamentos", label: "Pagamentos", icon: DollarSign, roles: ["diretor"] },
-  { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart2, roles: ["coordenador", "diretor"] },
+  { href: "/dashboard",              label: "Início",        icon: HouseSimple,     roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/professores",  label: "Professores",   icon: Users,           roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/materias",     label: "Matérias",      icon: BookOpenText,    roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/turmas",       label: "Grade Horária", icon: CalendarDots,    roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/tirinhas",     label: "Tirinhas",      icon: EnvelopeSimple,  roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/pagamentos",   label: "Pagamentos",    icon: CurrencyDollar,  roles: ["diretor"] },
+  { href: "/dashboard/relatorios",   label: "Relatórios",    icon: ChartLineUp,     roles: ["coordenador", "diretor"] },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -70,7 +74,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "rgba(255,255,255,0.08)"; }}
                 onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent"; }}
               >
-                <Icon size={16} />
+                <Icon size={18} weight={active ? "fill" : "regular"} />
                 {label}
               </a>
             );
@@ -82,7 +86,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {/* User card */}
           <div className="flex items-center gap-2.5 px-3 py-2.5 mb-1 rounded-lg" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
             <div className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--color-primary)" }}>
-              <UserCircle size={16} color="#fff" />
+              <UserCircle size={16} weight="fill" color="#fff" />
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold truncate" style={{ color: "#fff" }}>{emailShort}</p>
@@ -97,7 +101,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.5)"; }}
           >
-            <LogOut size={16} />
+            <SignOut size={18} weight="regular" />
             Sair
           </button>
         </div>
