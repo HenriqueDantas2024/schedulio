@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useUserRole } from "@/lib/hooks/useUserRole";
 import {
   ChevronLeft, ChevronRight, CheckCircle, Circle,
   Send, Loader2, DollarSign, Printer,
@@ -46,8 +48,24 @@ type Aba = "semanal" | "mensal";
 
 // ── component ─────────────────────────────────────────────────────────────────
 export default function PagamentosPage() {
+  const router = useRouter();
+  const { role, loading: roleLoading } = useUserRole();
   const supabase = createClient();
   const hoje = new Date();
+
+  useEffect(() => {
+    if (!roleLoading && role !== "diretor") {
+      router.replace("/dashboard");
+    }
+  }, [role, roleLoading, router]);
+
+  if (roleLoading || role !== "diretor") {
+    return (
+      <div className="flex items-center justify-center h-full" style={{ color: "var(--color-text-muted)" }}>
+        <Loader2 size={24} className="animate-spin" />
+      </div>
+    );
+  }
 
   const [aba, setAba] = useState<Aba>("semanal");
   const [semanaInicio, setSemanaInicio] = useState(() => getMondayOf(hoje.toISOString().slice(0, 10)));

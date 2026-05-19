@@ -2,21 +2,27 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useUserRole } from "@/lib/hooks/useUserRole";
 import { Users, BookOpen, Calendar, LayoutDashboard, LogOut, Mail, BarChart2, DollarSign } from "lucide-react";
 
-const navItems = [
-  { href: "/dashboard", label: "Início", icon: LayoutDashboard },
-  { href: "/dashboard/professores", label: "Professores", icon: Users },
-  { href: "/dashboard/materias", label: "Matérias", icon: BookOpen },
-  { href: "/dashboard/turmas", label: "Grade Horária", icon: Calendar },
-  { href: "/dashboard/tirinhas", label: "Tirinhas", icon: Mail },
-  { href: "/dashboard/pagamentos", label: "Pagamentos", icon: DollarSign },
-  { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart2 },
+const allNavItems = [
+  { href: "/dashboard", label: "Início", icon: LayoutDashboard, roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/professores", label: "Professores", icon: Users, roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/materias", label: "Matérias", icon: BookOpen, roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/turmas", label: "Grade Horária", icon: Calendar, roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/tirinhas", label: "Tirinhas", icon: Mail, roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/pagamentos", label: "Pagamentos", icon: DollarSign, roles: ["diretor"] },
+  { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart2, roles: ["coordenador", "diretor"] },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { role } = useUserRole();
+
+  const navItems = allNavItems.filter(item =>
+    role ? item.roles.includes(role) : item.roles.includes("coordenador")
+  );
 
   async function handleLogout() {
     const supabase = createClient();
