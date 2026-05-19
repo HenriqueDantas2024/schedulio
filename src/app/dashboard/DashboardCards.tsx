@@ -1,32 +1,203 @@
 "use client";
 
-import { Users, GraduationCap, BookOpen, Calendar, type LucideIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Users, GraduationCap, BookOpen, Calendar, BarChart2, Mail } from "lucide-react";
 
-const cards: { label: string; icon: LucideIcon; href: string; color: string }[] = [
-  { label: "Professores", icon: Users, href: "/dashboard/professores", color: "var(--color-primary)" },
-  { label: "Turmas", icon: GraduationCap, href: "/dashboard/turmas", color: "var(--color-navy)" },
-  { label: "Matérias", icon: BookOpen, href: "/dashboard/materias", color: "var(--color-success)" },
-  { label: "Grade Horária", icon: Calendar, href: "/dashboard/grade", color: "var(--color-warning)" },
+function getMondayOf(d: string) {
+  const dt = new Date(d + "T00:00:00");
+  const diff = dt.getDay() === 0 ? -6 : 1 - dt.getDay();
+  dt.setDate(dt.getDate() + diff);
+  return dt.toISOString().slice(0, 10);
+}
+function addDays(d: string, n: number) {
+  const dt = new Date(d + "T00:00:00");
+  dt.setDate(dt.getDate() + n);
+  return dt.toISOString().slice(0, 10);
+}
+
+const navLinks = [
+  { label: "Professores",  icon: Users,        href: "/dashboard/professores", color: "#E8193C", bg: "#FDE8EC" },
+  { label: "Matérias",     icon: BookOpen,     href: "/dashboard/materias",    color: "#0EA5E9", bg: "#E0F2FE" },
+  { label: "Grade Horária",icon: Calendar,     href: "/dashboard/turmas",      color: "#F59E0B", bg: "#FEF3C7" },
+  { label: "Tirinhas",     icon: Mail,         href: "/dashboard/tirinhas",    color: "#10B981", bg: "#D1FAE5" },
+  { label: "Relatórios",   icon: BarChart2,    href: "/dashboard/relatorios",  color: "#8B5CF6", bg: "#EDE9FE" },
 ];
 
-export default function DashboardCards() {
+const slides = ["/foto-aguas-claras.jpeg", "/foto-imp-exterior.jpeg"];
+
+export default function DashboardHome() {
+  const supabase = createClient();
+
+  const [slide, setSlide]   = useState(0);
+  const [kpis, setKpis]     = useState({ professores: 0, turmas: 0, materias: 0, aulasSemana: 0, pctMes: 0 });
+
+  // Slideshow
+  useEffect(() => {
+    const t = setInterval(() => setSlide(s => (s + 1) % slides.length), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  // KPIs
+  useEffect(() => {
+    async function load() {
+      const hoje = new Date().toISOString().slice(0, 10);
+
+      const [{ count: profs }, { count: turmas }, { count: mats }] = await Promise.all([
+        supabase.from("professores").select("*", { count: "exact", head: true }).eq("ativo", true),
+        supabase.from("turmas").select("*", { count: "exact", head: true }).eq("status", "ativa"),
+        supabase.from("materias").select("*", { count: "exact", head: true }),
+      ]);
+
+      // Aulas desta semana
+      const monday = getMondayOf(hoje);
+      const saturday = addDays(monday, 5);
+      const { data: semana } = await supabase.from("semanas").select("id")
+        .eq("data_inicio", monday).eq("data_fim", saturday).maybeSingle();
+      let aulasSemana = 0;
+      if (semana) {
+        const { count } = await supabase.from("aulas")
+          .select("*", { count: "exact", head: true }).eq("semana_id", semana.id);
+        aulasSemana = count ?? 0;
+      }
+
+      // % concluído no mês
+      const now = new Date();
+      const inicioMes = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+      const fimMes    = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+      const { data: semsMes } = await supabase.from("semanas").select("id")
+        .gte("data_inicio", inicioMes).lte("data_inicio", fimMes);
+      let pctMes = 0;
+      if (semsMes?.length) {
+        const ids = semsMes.map(s => s.id);
+        const [{ count: total }, { count: dadas }] = await Promise.all([
+          supabase.from("aulas").select("*", { count: "exact", head: true }).in("semana_id", ids),
+          supabase.from("aulas").select("*", { count: "exact", head: true }).in("semana_id", ids).eq("realizada", true),
+        ]);
+        pctMes = total ? Math.round(((dadas ?? 0) / total) * 100) : 0;
+      }
+
+      setKpis({ professores: profs ?? 0, turmas: turmas ?? 0, materias: mats ?? 0, aulasSemana, pctMes });
+    }
+    load();
+  }, []);
+
+  const dataAtual = new Date().toLocaleDateString("pt-BR", {
+    weekday: "long", day: "2-digit", month: "long", year: "numeric",
+  });
+
   return (
-    <div className="grid grid-cols-2 gap-4 max-w-2xl">
-      {cards.map(({ label, icon: Icon, href, color }) => (
-        <a
-          key={href}
-          href={href}
-          className="flex items-center gap-4 p-5 rounded-2xl transition-all"
-          style={{ backgroundColor: "var(--color-surface)", border: "1px solid var(--color-border)", boxShadow: "var(--shadow-card)" }}
-          onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "var(--shadow-elevated)")}
-          onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "var(--shadow-card)")}
-        >
-          <div className="p-3 rounded-xl" style={{ backgroundColor: color + "18" }}>
-            <Icon size={22} style={{ color }} />
+    <div>
+
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <div className="relative overflow-hidden" style={{ height: 320 }}>
+
+        {/* Photos */}
+        {slides.map((src, i) => (
+          <div key={src} className="absolute inset-0 transition-opacity"
+            style={{ opacity: slide === i ? 1 : 0, transitionDuration: "1200ms" }}>
+            <img src={src} alt="" className="w-full h-full object-cover" />
           </div>
-          <span className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>{label}</span>
-        </a>
-      ))}
+        ))}
+
+        {/* Overlay */}
+        <div className="absolute inset-0"
+          style={{ background: "linear-gradient(135deg, rgba(26,31,54,0.90) 0%, rgba(232,25,60,0.68) 100%)" }} />
+
+        {/* Content */}
+        <div className="relative z-10 h-full flex flex-col justify-between p-8">
+          <div className="flex items-center justify-between">
+            <img src="/imp_concursos_logo.png" alt="IMP Concursos"
+              style={{ width: 68, borderRadius: 8 }} />
+            <span className="text-sm capitalize px-3 py-1.5 rounded-full"
+              style={{ color: "rgba(255,255,255,0.85)", backgroundColor: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)" }}>
+              {dataAtual}
+            </span>
+          </div>
+
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2"
+              style={{ color: "rgba(255,255,255,0.55)" }}>
+              Painel de Coordenação
+            </p>
+            <h1 className="text-3xl font-extrabold text-white leading-tight mb-1">
+              Bem-vindo ao Grade Horária
+            </h1>
+            <p style={{ color: "rgba(255,255,255,0.65)" }}>
+              IMP Concursos — gestão inteligente de professores e aulas.
+            </p>
+
+            {/* Dots */}
+            <div className="flex gap-2 mt-4">
+              {slides.map((_, i) => (
+                <button key={i} onClick={() => setSlide(i)}
+                  className="rounded-full transition-all"
+                  style={{
+                    width: slide === i ? 22 : 8, height: 8,
+                    backgroundColor: slide === i ? "#fff" : "rgba(255,255,255,0.35)",
+                  }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── KPI strip ────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-5 gap-4 px-8 py-6"
+        style={{ backgroundColor: "var(--color-background)" }}>
+        {([
+          { label: "Professores Ativos", valor: kpis.professores,          Icon: Users,        color: "#E8193C" },
+          { label: "Turmas Ativas",      valor: kpis.turmas,               Icon: GraduationCap,color: "#1A1F36" },
+          { label: "Matérias",           valor: kpis.materias,             Icon: BookOpen,     color: "#0EA5E9" },
+          { label: "Aulas esta semana",  valor: kpis.aulasSemana,          Icon: Calendar,     color: "#F59E0B" },
+          { label: "Concluído no mês",   valor: `${kpis.pctMes}%`,         Icon: BarChart2,    color: "#10B981" },
+        ] as { label: string; valor: string | number; Icon: React.ElementType; color: string }[]).map(({ label, valor, Icon, color }) => (
+          <div key={label} className="p-5 rounded-2xl"
+            style={{ backgroundColor: "var(--color-surface)", border: "1px solid var(--color-border)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold uppercase tracking-wide"
+                style={{ color: "var(--color-text-muted)" }}>{label}</p>
+              <div className="p-2 rounded-lg" style={{ backgroundColor: color + "1A" }}>
+                <Icon size={14} style={{ color }} />
+              </div>
+            </div>
+            <p className="text-2xl font-extrabold" style={{ color: "var(--color-navy)" }}>{valor}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Quick access ─────────────────────────────────────────────────── */}
+      <div className="px-8 pb-8">
+        <p className="text-xs font-bold uppercase tracking-widest mb-4"
+          style={{ color: "var(--color-text-muted)" }}>Acesso Rápido</p>
+        <div className="grid grid-cols-5 gap-3">
+          {navLinks.map(({ label, icon: Icon, href, color, bg }) => (
+            <a key={href} href={href}
+              className="flex flex-col items-center gap-3 p-5 rounded-2xl transition-all"
+              style={{ backgroundColor: "var(--color-surface)", border: "1px solid var(--color-border)" }}
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.borderColor = color;
+                el.style.transform = "translateY(-3px)";
+                el.style.boxShadow = `0 8px 24px ${color}28`;
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.borderColor = "var(--color-border)";
+                el.style.transform = "";
+                el.style.boxShadow = "";
+              }}
+            >
+              <div className="p-3.5 rounded-xl" style={{ backgroundColor: bg }}>
+                <Icon size={20} style={{ color }} />
+              </div>
+              <span className="font-semibold text-sm text-center"
+                style={{ color: "var(--color-navy)" }}>{label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }
