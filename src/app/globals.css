@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    #f1f5f9 50%,
+    var(--color-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Cores IMP */
+  --color-primary: #E8193C;
+  --color-primary-hover: #C4152F;
+  --color-primary-light: #FDE8EC;
+  --color-navy: #1A1F36;
+  --color-navy-medium: #2D3354;
+  --color-background: #F7F8FC;
+  --color-surface: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-text-primary: #1A1F36;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Turnos */
+  --color-turno-matutino: #DBEAFE;
+  --color-turno-matutino-text: #1E40AF;
+  --color-turno-tarde: #FEF3C7;
+  --color-turno-tarde-text: #92400E;
+  --color-turno-noturno: #1E3A5F;
+  --color-turno-noturno-text: #FFFFFF;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Tipografia */
+  --font-body: var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --header-height: 64px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+/* ── Print ─────────────────────────────────────────────────────────────────── */
+.no-print  { }
+.print-only { display: none; }
+
+@media print {
+  @page { margin: 1.5cm; }
+
+  /* Hide sidebar and make main full width */
+  aside { display: none !important; }
+  main  { width: 100% !important; overflow: visible !important; }
+
+  /* Fix the h-screen/overflow-hidden layout wrapper */
+  body > div,
+  .h-screen { height: auto !important; overflow: visible !important; display: block !important; }
+
+  /* Hide interactive elements */
+  .no-print { display: none !important; }
+
+  /* Show print-only elements */
+  .print-only { display: block !important; }
+
+  /* Preserve colors */
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Prevent rows from splitting across pages */
+  tr { break-inside: avoid; }
+
+  /* Fix grid overflow for Grade Completa */
+  .overflow-x-auto { overflow: visible !important; }
+  table { width: 100% !important; }
 }
