@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    #f1f5f9 50%,
+    var(--color-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
 :root {
   /* Cores IMP */
   --color-primary: #E8193C;

@@ -3,7 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Mail, Send, ChevronLeft, ChevronRight, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import Button from "@/components/ui/Button";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 
 interface Professor {
   id: string;
@@ -106,6 +108,14 @@ export default function TirinhasPage() {
     const data = await res.json();
     setResultado(data);
     setEnviando(null);
+
+    if (data.enviados > 0 && data.falhas === 0) {
+      toast.success(`${data.enviados} e-mail${data.enviados !== 1 ? "s" : ""} enviado${data.enviados !== 1 ? "s" : ""} com sucesso!`);
+    } else if (data.falhas > 0) {
+      toast.warning(`${data.enviados} enviado${data.enviados !== 1 ? "s" : ""}, ${data.falhas} falha${data.falhas !== 1 ? "s" : ""}.`);
+    } else {
+      toast.error("Nenhum e-mail foi enviado.");
+    }
   }
 
   const professoresComAula = professores.filter(p => aulasMap[p.id]);
@@ -147,7 +157,7 @@ export default function TirinhasPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Carregando...</p>
+        <SkeletonTable rows={4} cols={3} />
       ) : !semanaExiste || professoresComAula.length === 0 ? (
         <div className="text-center py-16 rounded-2xl" style={{ border: "1px dashed var(--color-border)" }}>
           <Mail size={32} className="mx-auto mb-3" style={{ color: "var(--color-text-muted)" }} />

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Users, GraduationCap, BookOpen, Calendar, BarChart2, Mail } from "lucide-react";
+import { useCountUp } from "@/lib/hooks/useCountUp";
 
 function getMondayOf(d: string) {
   const dt = new Date(d + "T00:00:00");
@@ -31,6 +32,13 @@ export default function DashboardHome() {
 
   const [slide, setSlide]   = useState(0);
   const [kpis, setKpis]     = useState({ professores: 0, turmas: 0, materias: 0, aulasSemana: 0, pctMes: 0 });
+  const [ready, setReady]   = useState(false);
+
+  const cProfs    = useCountUp(kpis.professores, 1200, ready);
+  const cTurmas   = useCountUp(kpis.turmas,      1200, ready);
+  const cMaterias = useCountUp(kpis.materias,    1200, ready);
+  const cAulas    = useCountUp(kpis.aulasSemana, 1200, ready);
+  const cPct      = useCountUp(kpis.pctMes,      1400, ready);
 
   // Slideshow
   useEffect(() => {
@@ -78,6 +86,7 @@ export default function DashboardHome() {
       }
 
       setKpis({ professores: profs ?? 0, turmas: turmas ?? 0, materias: mats ?? 0, aulasSemana, pctMes });
+      setReady(true);
     }
     load();
   }, []);
@@ -146,11 +155,11 @@ export default function DashboardHome() {
       <div className="grid grid-cols-5 gap-4 px-8 py-6"
         style={{ backgroundColor: "var(--color-background)" }}>
         {([
-          { label: "Professores Ativos", valor: kpis.professores,          Icon: Users,        color: "#E8193C" },
-          { label: "Turmas Ativas",      valor: kpis.turmas,               Icon: GraduationCap,color: "#1A1F36" },
-          { label: "Matérias",           valor: kpis.materias,             Icon: BookOpen,     color: "#0EA5E9" },
-          { label: "Aulas esta semana",  valor: kpis.aulasSemana,          Icon: Calendar,     color: "#F59E0B" },
-          { label: "Concluído no mês",   valor: `${kpis.pctMes}%`,         Icon: BarChart2,    color: "#10B981" },
+          { label: "Professores Ativos", valor: cProfs,          Icon: Users,        color: "#E8193C" },
+          { label: "Turmas Ativas",      valor: cTurmas,         Icon: GraduationCap,color: "#1A1F36" },
+          { label: "Matérias",           valor: cMaterias,       Icon: BookOpen,     color: "#0EA5E9" },
+          { label: "Aulas esta semana",  valor: cAulas,          Icon: Calendar,     color: "#F59E0B" },
+          { label: "Concluído no mês",   valor: `${cPct}%`,      Icon: BarChart2,    color: "#10B981" },
         ] as { label: string; valor: string | number; Icon: React.ElementType; color: string }[]).map(({ label, valor, Icon, color }) => (
           <div key={label} className="p-5 rounded-2xl"
             style={{ backgroundColor: "var(--color-surface)", border: "1px solid var(--color-border)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>

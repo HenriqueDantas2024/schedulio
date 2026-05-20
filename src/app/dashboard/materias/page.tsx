@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface Materia { id: string; nome: string; }
@@ -17,6 +19,7 @@ export default function MateriasPage() {
   const [editing, setEditing] = useState<Materia | null>(null);
   const [nome, setNome] = useState("");
   const [saving, setSaving] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
   const supabase = createClient();
 
   async function load() {
@@ -35,8 +38,10 @@ export default function MateriasPage() {
     setSaving(true);
     if (editing) {
       await supabase.from("materias").update({ nome }).eq("id", editing.id);
+      toast.success("Matéria atualizada com sucesso.");
     } else {
       await supabase.from("materias").insert({ nome });
+      toast.success("Matéria cadastrada com sucesso.");
     }
     setSaving(false);
     setModalOpen(false);
@@ -44,8 +49,19 @@ export default function MateriasPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Remover esta matéria?")) return;
-    await supabase.from("materias").delete().eq("id", id);
+    if (confirmingDelete !== id) {
+      setConfirmingDelete(id);
+      toast.warning("Clique em excluir novamente para confirmar.", {
+        duration: 3000,
+        onDismiss: () => setConfirmingDelete(null),
+        onAutoClose: () => setConfirmingDelete(null),
+      });
+      return;
+    }
+    setConfirmingDelete(null);
+    const { error } = await supabase.from("materias").delete().eq("id", id);
+    if (error) toast.error("Erro ao remover matéria.");
+    else toast.success("Matéria removida.");
     load();
   }
 
@@ -58,7 +74,7 @@ export default function MateriasPage() {
       />
 
       {loading ? (
-        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Carregando...</p>
+        <SkeletonTable rows={6} cols={2} />
       ) : materias.length === 0 ? (
         <div className="text-center py-16" style={{ color: "var(--color-text-muted)" }}>
           <p className="text-sm">Nenhuma matéria cadastrada ainda.</p>
@@ -74,9 +90,17 @@ export default function MateriasPage() {
             </thead>
             <tbody>
               {materias.map((m) => (
-                <tr key={m.id} style={{ borderBottom: "1px solid var(--color-border)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--color-background)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                <tr key={m.id}
+                  className="transition-colors duration-150"
+                  style={{ borderBottom: "1px solid var(--color-border)" }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLTableRowElement).style.backgroundColor = "var(--color-background)";
+                    (e.currentTarget as HTMLTableRowElement).style.boxShadow = "inset 3px 0 0 var(--color-primary)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLTableRowElement).style.backgroundColor = "transparent";
+                    (e.currentTarget as HTMLTableRowElement).style.boxShadow = "none";
+                  }}
                 >
                   <td className="px-5 py-3.5 font-medium" style={{ color: "var(--color-text-primary)" }}>{m.nome}</td>
                   <td className="px-5 py-3.5">
@@ -85,9 +109,10 @@ export default function MateriasPage() {
                         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-border)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-navy)"; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
                       ><Pencil size={14} /></button>
-                      <button onClick={() => handleDelete(m.id)} className="p-1.5 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
+                      <button onClick={() => handleDelete(m.id)} className="p-1.5 rounded-lg transition-all"
+                        style={{ color: confirmingDelete === m.id ? "var(--color-primary)" : "var(--color-text-muted)", backgroundColor: confirmingDelete === m.id ? "#FDE8EC" : "transparent" }}
+                        onMouseEnter={(e) => { if (confirmingDelete !== m.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}}
+                        onMouseLeave={(e) => { if (confirmingDelete !== m.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}}
                       ><Trash2 size={14} /></button>
                     </div>
                   </td>

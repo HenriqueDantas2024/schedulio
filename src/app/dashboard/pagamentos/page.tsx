@@ -4,11 +4,14 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useUserRole } from "@/lib/hooks/useUserRole";
+import { toast } from "sonner";
 import {
   ChevronLeft, ChevronRight, CheckCircle, Circle,
   Send, Loader2, DollarSign, Printer,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { SkeletonTable, SkeletonKpi } from "@/components/ui/Skeleton";
+import { useCountUp } from "@/lib/hooks/useCountUp";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function getMondayOf(d: string) {
@@ -174,6 +177,7 @@ export default function PagamentosPage() {
     }, { onConflict: "professor_id,periodo_inicio,periodo_fim,tipo" });
 
     setMarcando(null);
+    toast.success(novoStatus === "pago" ? "Professor marcado como pago." : "Status revertido para pendente.");
     load();
   }
 
@@ -203,6 +207,8 @@ export default function PagamentosPage() {
     const ok = res.ok;
     setFeedbackEnvio(prev => ({ ...prev, [prof.professor_id]: ok ? "ok" : "erro" }));
     setEnviando(null);
+    if (ok) toast.success(`Resumo enviado para ${prof.professor_nome}.`);
+    else toast.error(`Falha ao enviar para ${prof.professor_nome}.`);
   }
 
   // ── Derivados ────────────────────────────────────────────────────────────────
@@ -210,6 +216,12 @@ export default function PagamentosPage() {
   const totalHoras  = linhas.reduce((s, l) => s + l.total_horas, 0);
   const totalPagos  = linhas.filter(l => l.status === "pago").length;
   const valorPago   = linhas.filter(l => l.status === "pago").reduce((s, l) => s + l.total_valor, 0);
+
+  const kpiReady    = !loading && linhas.length > 0;
+  const cTotalPagar = useCountUp(Math.round(totalPagar * 100), 1200, kpiReady);
+  const cHoras      = useCountUp(Math.round(totalHoras * 10), 1000, kpiReady);
+  const cProfs      = useCountUp(linhas.length, 900, kpiReady);
+  const cPagos      = useCountUp(totalPagos, 900, kpiReady);
 
   const periodoLabel = aba === "semanal"
     ? `${fmtDate(semanaInicio)} a ${fmtDate(semanaFim)}`
@@ -300,7 +312,12 @@ export default function PagamentosPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Carregando...</p>
+        <>
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            {[0,1,2,3].map(i => <SkeletonKpi key={i} />)}
+          </div>
+          <SkeletonTable rows={5} cols={5} />
+        </>
       ) : linhas.length === 0 ? (
         <div className="text-center py-16 rounded-2xl" style={{ border: "1px dashed var(--color-border)" }}>
           <DollarSign size={32} className="mx-auto mb-3" style={{ color: "var(--color-text-muted)" }} />
@@ -314,10 +331,10 @@ export default function PagamentosPage() {
           {/* Cards de resumo */}
           <div className="grid grid-cols-4 gap-4 mb-6">
             {[
-              { label: "Total a Pagar", valor: fmtMoeda(totalPagar), color: "var(--color-primary)" },
-              { label: "Horas Realizadas", valor: `${r2(totalHoras)}h`, color: "var(--color-navy)" },
-              { label: "Professores", valor: String(linhas.length), color: "#0EA5E9" },
-              { label: "Já Pagos", valor: `${totalPagos}/${linhas.length}`, sub: totalPagos > 0 ? fmtMoeda(valorPago) : null, color: "#16A34A" },
+              { label: "Total a Pagar", valor: fmtMoeda(cTotalPagar / 100), color: "var(--color-primary)" },
+              { label: "Horas Realizadas", valor: `${r2(cHoras / 10)}h`, color: "var(--color-navy)" },
+              { label: "Professores", valor: String(cProfs), color: "#0EA5E9" },
+              { label: "Já Pagos", valor: `${cPagos}/${linhas.length}`, sub: totalPagos > 0 ? fmtMoeda(valorPago) : null, color: "#16A34A" },
             ].map(({ label, valor, sub, color }) => (
               <div key={label} className="p-5 rounded-2xl" style={{ backgroundColor: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
                 <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--color-text-muted)" }}>{label}</p>

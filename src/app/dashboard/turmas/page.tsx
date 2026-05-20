@@ -8,6 +8,8 @@ import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import { Plus, Pencil, Trash2, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 
 interface Turma { id: string; codigo: string; concurso: string; local: string; turno: string; data_inicio: string; status: string; }
 
@@ -26,6 +28,7 @@ export default function TurmasPage() {
   const [editing, setEditing] = useState<Turma | null>(null);
   const [form, setForm] = useState({ codigo: "", concurso: "", local: "", turno: "M", data_inicio: "" });
   const [saving, setSaving] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
   const supabase = createClient();
 
   async function load() {
@@ -44,8 +47,10 @@ export default function TurmasPage() {
     setSaving(true);
     if (editing) {
       await supabase.from("turmas").update(form).eq("id", editing.id);
+      toast.success("Turma atualizada com sucesso.");
     } else {
       await supabase.from("turmas").insert(form);
+      toast.success("Turma cadastrada com sucesso.");
     }
     setSaving(false);
     setModalOpen(false);
@@ -53,8 +58,19 @@ export default function TurmasPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Remover esta turma?")) return;
-    await supabase.from("turmas").delete().eq("id", id);
+    if (confirmingDelete !== id) {
+      setConfirmingDelete(id);
+      toast.warning("Clique em excluir novamente para confirmar.", {
+        duration: 3000,
+        onDismiss: () => setConfirmingDelete(null),
+        onAutoClose: () => setConfirmingDelete(null),
+      });
+      return;
+    }
+    setConfirmingDelete(null);
+    const { error } = await supabase.from("turmas").delete().eq("id", id);
+    if (error) toast.error("Erro ao remover turma.");
+    else toast.success("Turma removida.");
     load();
   }
 
@@ -67,7 +83,7 @@ export default function TurmasPage() {
       />
 
       {loading ? (
-        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Carregando...</p>
+        <SkeletonTable rows={5} cols={6} />
       ) : turmas.length === 0 ? (
         <div className="text-center py-16" style={{ color: "var(--color-text-muted)" }}>
           <p className="text-sm">Nenhuma turma cadastrada ainda.</p>
@@ -84,9 +100,11 @@ export default function TurmasPage() {
             </thead>
             <tbody>
               {turmas.map((t) => (
-                <tr key={t.id} style={{ borderBottom: "1px solid var(--color-border)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--color-background)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                <tr key={t.id}
+                  className="transition-colors duration-150"
+                  style={{ borderBottom: "1px solid var(--color-border)" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = "var(--color-background)"; (e.currentTarget as HTMLTableRowElement).style.boxShadow = "inset 3px 0 0 var(--color-primary)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLTableRowElement).style.boxShadow = "none"; }}
                 >
                   <td className="px-5 py-3.5 font-mono text-xs font-bold" style={{ color: "var(--color-navy)" }}>{t.codigo}</td>
                   <td className="px-5 py-3.5 font-medium" style={{ color: "var(--color-text-primary)" }}>{t.concurso}</td>
@@ -110,9 +128,10 @@ export default function TurmasPage() {
                         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-border)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-navy)"; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
                       ><Pencil size={14} /></button>
-                      <button onClick={() => handleDelete(t.id)} className="p-1.5 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
+                      <button onClick={() => handleDelete(t.id)} className="p-1.5 rounded-lg transition-all"
+                        style={{ color: confirmingDelete === t.id ? "var(--color-primary)" : "var(--color-text-muted)", backgroundColor: confirmingDelete === t.id ? "#FDE8EC" : "transparent" }}
+                        onMouseEnter={(e) => { if (confirmingDelete !== t.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}}
+                        onMouseLeave={(e) => { if (confirmingDelete !== t.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}}
                       ><Trash2 size={14} /></button>
                     </div>
                   </td>
