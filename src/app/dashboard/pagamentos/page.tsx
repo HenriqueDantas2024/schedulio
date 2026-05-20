@@ -144,6 +144,13 @@ export default function PagamentosPage() {
     }
   }, [role, roleLoading, router]);
 
+  // ── Contadores animados (devem vir antes do early return) ──────────────────
+  const kpiReady    = !loading && linhas.length > 0;
+  const cTotalPagar = useCountUp(Math.round(linhas.reduce((s, l) => s + l.total_valor, 0) * 100), 1200, kpiReady);
+  const cHoras      = useCountUp(Math.round(linhas.reduce((s, l) => s + l.total_horas, 0) * 10), 1000, kpiReady);
+  const cProfs      = useCountUp(linhas.length, 900, kpiReady);
+  const cPagos      = useCountUp(linhas.filter(l => l.status === "pago").length, 900, kpiReady);
+
   // ── Early return (após todos os hooks) ─────────────────────────────────────
   if (roleLoading || role !== "diretor") {
     return (
@@ -217,11 +224,6 @@ export default function PagamentosPage() {
   const totalPagos  = linhas.filter(l => l.status === "pago").length;
   const valorPago   = linhas.filter(l => l.status === "pago").reduce((s, l) => s + l.total_valor, 0);
 
-  const kpiReady    = !loading && linhas.length > 0;
-  const cTotalPagar = useCountUp(Math.round(totalPagar * 100), 1200, kpiReady);
-  const cHoras      = useCountUp(Math.round(totalHoras * 10), 1000, kpiReady);
-  const cProfs      = useCountUp(linhas.length, 900, kpiReady);
-  const cPagos      = useCountUp(totalPagos, 900, kpiReady);
 
   const periodoLabel = aba === "semanal"
     ? `${fmtDate(semanaInicio)} a ${fmtDate(semanaFim)}`
