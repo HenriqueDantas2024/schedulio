@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useUserRole } from "@/lib/hooks/useUserRole";
 import {
@@ -63,9 +64,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
-              <a
+              <Link
                 key={href}
                 href={href}
+                prefetch={true}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all"
                 style={{
                   backgroundColor: active ? "var(--color-primary)" : "transparent",
@@ -76,7 +78,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               >
                 <Icon size={18} weight={active ? "fill" : "regular"} />
                 {label}
-              </a>
+              </Link>
             );
           })}
         </nav>

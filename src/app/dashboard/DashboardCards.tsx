@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Users, GraduationCap, BookOpen, Calendar, BarChart2, Mail } from "lucide-react";
 import { useCountUp } from "@/lib/hooks/useCountUp";
@@ -51,39 +52,44 @@ export default function DashboardHome() {
     async function load() {
       const hoje = new Date().toISOString().slice(0, 10);
 
-      const [{ count: profs }, { count: turmas }, { count: mats }] = await Promise.all([
-        supabase.from("professores").select("*", { count: "exact", head: true }).eq("ativo", true),
-        supabase.from("turmas").select("*", { count: "exact", head: true }).eq("status", "ativa"),
-        supabase.from("materias").select("*", { count: "exact", head: true }),
-      ]);
-
-      // Aulas desta semana
       const monday = getMondayOf(hoje);
       const saturday = addDays(monday, 5);
-      const { data: semana } = await supabase.from("semanas").select("id")
-        .eq("data_inicio", monday).eq("data_fim", saturday).maybeSingle();
-      let aulasSemana = 0;
-      if (semana) {
-        const { count } = await supabase.from("aulas")
-          .select("*", { count: "exact", head: true }).eq("semana_id", semana.id);
-        aulasSemana = count ?? 0;
-      }
-
-      // % concluído no mês
       const now = new Date();
       const inicioMes = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
       const fimMes    = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
-      const { data: semsMes } = await supabase.from("semanas").select("id")
-        .gte("data_inicio", inicioMes).lte("data_inicio", fimMes);
-      let pctMes = 0;
-      if (semsMes?.length) {
-        const ids = semsMes.map(s => s.id);
-        const [{ count: total }, { count: dadas }] = await Promise.all([
-          supabase.from("aulas").select("*", { count: "exact", head: true }).in("semana_id", ids),
-          supabase.from("aulas").select("*", { count: "exact", head: true }).in("semana_id", ids).eq("realizada", true),
-        ]);
-        pctMes = total ? Math.round(((dadas ?? 0) / total) * 100) : 0;
-      }
+
+      // Todas as queries independentes em paralelo
+      const [
+        { count: profs },
+        { count: turmas },
+        { count: mats },
+        { data: semana },
+        { data: semsMes },
+      ] = await Promise.all([
+        supabase.from("professores").select("*", { count: "exact", head: true }).eq("ativo", true),
+        supabase.from("turmas").select("*", { count: "exact", head: true }).eq("status", "ativa"),
+        supabase.from("materias").select("*", { count: "exact", head: true }),
+        supabase.from("semanas").select("id").eq("data_inicio", monday).eq("data_fim", saturday).maybeSingle(),
+        supabase.from("semanas").select("id").gte("data_inicio", inicioMes).lte("data_inicio", fimMes),
+      ]);
+
+      // Queries dependentes dos IDs de semana — em paralelo entre si
+      const [aulasSemanaResult, pctMesResult] = await Promise.all([
+        semana
+          ? supabase.from("aulas").select("*", { count: "exact", head: true }).eq("semana_id", semana.id)
+          : Promise.resolve({ count: 0 }),
+        semsMes?.length
+          ? Promise.all([
+              supabase.from("aulas").select("*", { count: "exact", head: true }).in("semana_id", semsMes.map(s => s.id)),
+              supabase.from("aulas").select("*", { count: "exact", head: true }).in("semana_id", semsMes.map(s => s.id)).eq("realizada", true),
+            ])
+          : Promise.resolve(null),
+      ]);
+
+      const aulasSemana = aulasSemanaResult.count ?? 0;
+      const pctMes = pctMesResult
+        ? (() => { const [tot, dad] = pctMesResult as [{ count: number | null }, { count: number | null }]; return tot.count ? Math.round(((dad.count ?? 0) / tot.count) * 100) : 0; })()
+        : 0;
 
       setKpis({ professores: profs ?? 0, turmas: turmas ?? 0, materias: mats ?? 0, aulasSemana, pctMes });
       setReady(true);
@@ -105,7 +111,7 @@ export default function DashboardHome() {
         {slides.map((src, i) => (
           <div key={src} className="absolute inset-0 transition-opacity"
             style={{ opacity: slide === i ? 1 : 0, transitionDuration: "1200ms" }}>
-            <img src={src} alt="" className="w-full h-full object-cover" />
+            <Image src={src} alt="" fill className="object-cover" priority={i === 0} sizes="100vw" />
           </div>
         ))}
 

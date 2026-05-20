@@ -91,10 +91,17 @@ export default function PagamentosPage() {
 
     if (!semanaIds.length) { setLinhas([]); setLoading(false); return; }
 
-    const { data: aulas } = await supabase.from("aulas")
-      .select("professor_id, carga_horaria, professores(id, nome, email, valor_hora_aula)")
-      .in("semana_id", semanaIds)
-      .eq("realizada", true);
+    // Aulas e pagamentos em paralelo — a query de pagamentos não depende das aulas
+    const [{ data: aulas }, { data: pagtos }] = await Promise.all([
+      supabase.from("aulas")
+        .select("professor_id, carga_horaria, professores(id, nome, email, valor_hora_aula)")
+        .in("semana_id", semanaIds)
+        .eq("realizada", true),
+      supabase.from("pagamentos")
+        .select("professor_id, status, pago_em")
+        .eq("periodo_inicio", periodo_inicio)
+        .eq("tipo", aba),
+    ]);
 
     if (!aulas?.length) { setLinhas([]); setLoading(false); return; }
 
@@ -118,13 +125,6 @@ export default function PagamentosPage() {
       linha.total_horas = r2(linha.total_horas + Number(a.carga_horaria));
       linha.total_valor = r2(linha.total_horas * linha.valor_hora);
     }
-
-    const ids = Array.from(map.keys());
-    const { data: pagtos } = await supabase.from("pagamentos")
-      .select("professor_id, status, pago_em")
-      .in("professor_id", ids)
-      .eq("periodo_inicio", periodo_inicio)
-      .eq("tipo", aba);
 
     for (const p of pagtos ?? []) {
       const l = map.get(p.professor_id);
