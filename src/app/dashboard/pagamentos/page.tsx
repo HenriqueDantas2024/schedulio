@@ -7,7 +7,7 @@ import { useUserRole } from "@/lib/hooks/useUserRole";
 import { toast } from "sonner";
 import {
   ChevronLeft, ChevronRight, CheckCircle, Circle,
-  Send, Loader2, DollarSign, Printer,
+  Send, Loader2, DollarSign, Printer, Search, X,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { SkeletonTable, SkeletonKpi } from "@/components/ui/Skeleton";
@@ -67,6 +67,7 @@ export default function PagamentosPage() {
   const [marcando, setMarcando] = useState<string | null>(null);
   const [enviando, setEnviando] = useState<string | null>(null);
   const [feedbackEnvio, setFeedbackEnvio] = useState<Record<string, "ok" | "erro">>({});
+  const [filtroProfessor, setFiltroProfessor] = useState("");
 
   // ── Carregar dados ──────────────────────────────────────────────────────────
   const load = useCallback(async () => {
@@ -145,11 +146,16 @@ export default function PagamentosPage() {
   }, [role, roleLoading, router]);
 
   // ── Contadores animados (devem vir antes do early return) ──────────────────
-  const kpiReady    = !loading && linhas.length > 0;
-  const cTotalPagar = useCountUp(Math.round(linhas.reduce((s, l) => s + l.total_valor, 0) * 100), 1200, kpiReady);
-  const cAulas      = useCountUp(linhas.reduce((s, l) => s + l.total_aulas, 0), 1000, kpiReady);
-  const cProfs      = useCountUp(linhas.length, 900, kpiReady);
-  const cPagos      = useCountUp(linhas.filter(l => l.status === "pago").length, 900, kpiReady);
+  // linhasFiltradas pode ser calculado antes dos hooks de animação (é derivado de state, não um hook)
+  const linhasFiltradas = filtroProfessor.trim()
+    ? linhas.filter(l => l.professor_nome.toLowerCase().includes(filtroProfessor.toLowerCase()))
+    : linhas;
+
+  const kpiReady    = !loading && linhasFiltradas.length > 0;
+  const cTotalPagar = useCountUp(Math.round(linhasFiltradas.reduce((s, l) => s + l.total_valor, 0) * 100), 1200, kpiReady);
+  const cAulas      = useCountUp(linhasFiltradas.reduce((s, l) => s + l.total_aulas, 0), 1000, kpiReady);
+  const cProfs      = useCountUp(linhasFiltradas.length, 900, kpiReady);
+  const cPagos      = useCountUp(linhasFiltradas.filter(l => l.status === "pago").length, 900, kpiReady);
 
   // ── Early return (após todos os hooks) ─────────────────────────────────────
   if (roleLoading || role !== "diretor") {
@@ -219,10 +225,8 @@ export default function PagamentosPage() {
   }
 
   // ── Derivados ────────────────────────────────────────────────────────────────
-  const totalPagar  = linhas.reduce((s, l) => s + l.total_valor, 0);
-  const totalAulas  = linhas.reduce((s, l) => s + l.total_aulas, 0);
-  const totalPagos  = linhas.filter(l => l.status === "pago").length;
-  const valorPago   = linhas.filter(l => l.status === "pago").reduce((s, l) => s + l.total_valor, 0);
+  const totalPagos  = linhasFiltradas.filter(l => l.status === "pago").length;
+  const valorPago   = linhasFiltradas.filter(l => l.status === "pago").reduce((s, l) => s + l.total_valor, 0);
 
 
   const periodoLabel = aba === "semanal"
@@ -313,6 +317,31 @@ export default function PagamentosPage() {
         )}
       </div>
 
+      {/* Filtro por professor */}
+      <div className="no-print relative mb-6" style={{ maxWidth: 320 }}>
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ color: "var(--color-text-muted)" }} />
+        <input
+          type="text"
+          placeholder="Filtrar por professor..."
+          value={filtroProfessor}
+          onChange={e => setFiltroProfessor(e.target.value)}
+          className="w-full pl-9 pr-8 py-2.5 rounded-lg text-sm outline-none"
+          style={{
+            border: "1.5px solid var(--color-border)",
+            backgroundColor: "var(--color-surface)",
+            color: "var(--color-text-primary)",
+          }}
+        />
+        {filtroProfessor && (
+          <button onClick={() => setFiltroProfessor("")}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded"
+            style={{ color: "var(--color-text-muted)" }}>
+            <X size={13} />
+          </button>
+        )}
+      </div>
+
       {loading ? (
         <>
           <div className="grid grid-cols-4 gap-4 mb-6">
@@ -336,7 +365,7 @@ export default function PagamentosPage() {
               { label: "Total a Pagar", valor: fmtMoeda(cTotalPagar / 100), color: "var(--color-primary)" },
               { label: "Aulas Ministradas", valor: String(cAulas), color: "var(--color-navy)" },
               { label: "Professores", valor: String(cProfs), color: "#0EA5E9" },
-              { label: "Já Pagos", valor: `${cPagos}/${linhas.length}`, sub: totalPagos > 0 ? fmtMoeda(valorPago) : null, color: "#16A34A" },
+              { label: "Já Pagos", valor: `${cPagos}/${linhasFiltradas.length}`, sub: totalPagos > 0 ? fmtMoeda(valorPago) : null, color: "#16A34A" },
             ].map(({ label, valor, sub, color }) => (
               <div key={label} className="p-5 rounded-2xl" style={{ backgroundColor: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
                 <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--color-text-muted)" }}>{label}</p>
@@ -358,9 +387,14 @@ export default function PagamentosPage() {
               <span className="col-span-2 no-print" />
             </div>
 
-            {linhas.map((l, i) => (
+            {linhasFiltradas.length === 0 && (
+              <div className="text-center py-10" style={{ color: "var(--color-text-muted)" }}>
+                <p className="text-sm">Nenhum professor encontrado para &ldquo;{filtroProfessor}&rdquo;</p>
+              </div>
+            )}
+            {linhasFiltradas.map((l, i) => (
               <div key={l.professor_id}
-                style={{ borderBottom: i < linhas.length - 1 ? "1px solid var(--color-border)" : "none" }}>
+                style={{ borderBottom: i < linhasFiltradas.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                 <div className="grid grid-cols-12 px-5 py-4 items-center"
                   style={{ backgroundColor: l.status === "pago" ? "#F0FDF4" : "transparent" }}>
 
