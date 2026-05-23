@@ -40,8 +40,8 @@ interface LinhaPagamento {
   professor_id: string;
   professor_nome: string;
   professor_email: string;
-  valor_hora: number;
-  total_horas: number;
+  valor_de_entrada: number;
+  total_aulas: number;
   total_valor: number;
   status: "pendente" | "pago";
   pago_em?: string | null;
@@ -94,7 +94,7 @@ export default function PagamentosPage() {
     // Aulas e pagamentos em paralelo — a query de pagamentos não depende das aulas
     const [{ data: aulas }, { data: pagtos }] = await Promise.all([
       supabase.from("aulas")
-        .select("professor_id, carga_horaria, professores(id, nome, email, valor_hora_aula)")
+        .select("professor_id, professores(id, nome, email, valor_de_entrada)")
         .in("semana_id", semanaIds)
         .eq("realizada", true),
       supabase.from("pagamentos")
@@ -108,22 +108,22 @@ export default function PagamentosPage() {
     const map = new Map<string, LinhaPagamento>();
     for (const a of aulas) {
       const prof = (Array.isArray(a.professores) ? a.professores[0] : a.professores) as
-        { id: string; nome: string; email: string; valor_hora_aula: number } | null;
+        { id: string; nome: string; email: string; valor_de_entrada: number } | null;
       if (!prof) continue;
       if (!map.has(a.professor_id)) {
         map.set(a.professor_id, {
           professor_id: a.professor_id,
           professor_nome: prof.nome,
           professor_email: prof.email,
-          valor_hora: Number(prof.valor_hora_aula ?? 0),
-          total_horas: 0,
+          valor_de_entrada: Number(prof.valor_de_entrada ?? 0),
+          total_aulas: 0,
           total_valor: 0,
           status: "pendente",
         });
       }
       const linha = map.get(a.professor_id)!;
-      linha.total_horas = r2(linha.total_horas + Number(a.carga_horaria));
-      linha.total_valor = r2(linha.total_horas * linha.valor_hora);
+      linha.total_aulas += 1;
+      linha.total_valor = r2(linha.total_aulas * linha.valor_de_entrada);
     }
 
     for (const p of pagtos ?? []) {
@@ -147,7 +147,7 @@ export default function PagamentosPage() {
   // ── Contadores animados (devem vir antes do early return) ──────────────────
   const kpiReady    = !loading && linhas.length > 0;
   const cTotalPagar = useCountUp(Math.round(linhas.reduce((s, l) => s + l.total_valor, 0) * 100), 1200, kpiReady);
-  const cHoras      = useCountUp(Math.round(linhas.reduce((s, l) => s + l.total_horas, 0) * 10), 1000, kpiReady);
+  const cAulas      = useCountUp(linhas.reduce((s, l) => s + l.total_aulas, 0), 1000, kpiReady);
   const cProfs      = useCountUp(linhas.length, 900, kpiReady);
   const cPagos      = useCountUp(linhas.filter(l => l.status === "pago").length, 900, kpiReady);
 
@@ -176,8 +176,8 @@ export default function PagamentosPage() {
       periodo_inicio,
       periodo_fim,
       tipo: aba,
-      total_horas: prof.total_horas,
-      valor_hora: prof.valor_hora,
+      total_aulas: prof.total_aulas,
+      valor_de_entrada: prof.valor_de_entrada,
       total_valor: prof.total_valor,
       status: novoStatus,
       pago_em: novoStatus === "pago" ? new Date().toISOString() : null,
@@ -206,8 +206,8 @@ export default function PagamentosPage() {
         periodo_inicio,
         periodo_fim,
         tipo: aba,
-        total_horas: prof.total_horas,
-        valor_hora: prof.valor_hora,
+        total_aulas: prof.total_aulas,
+        valor_de_entrada: prof.valor_de_entrada,
         total_valor: prof.total_valor,
       }),
     });
@@ -220,7 +220,7 @@ export default function PagamentosPage() {
 
   // ── Derivados ────────────────────────────────────────────────────────────────
   const totalPagar  = linhas.reduce((s, l) => s + l.total_valor, 0);
-  const totalHoras  = linhas.reduce((s, l) => s + l.total_horas, 0);
+  const totalAulas  = linhas.reduce((s, l) => s + l.total_aulas, 0);
   const totalPagos  = linhas.filter(l => l.status === "pago").length;
   const valorPago   = linhas.filter(l => l.status === "pago").reduce((s, l) => s + l.total_valor, 0);
 
@@ -238,7 +238,7 @@ export default function PagamentosPage() {
         <div>
           <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-navy)" }}>Pagamentos</h1>
           <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
-            Cálculo automático: horas realizadas × valor hora/aula por professor.
+            Cálculo automático: aulas ministradas × valor de entrada por professor.
           </p>
         </div>
         <button
@@ -325,7 +325,7 @@ export default function PagamentosPage() {
           <DollarSign size={32} className="mx-auto mb-3" style={{ color: "var(--color-text-muted)" }} />
           <p className="font-semibold text-sm" style={{ color: "var(--color-text-secondary)" }}>Nenhuma aula realizada neste período</p>
           <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
-            Marque aulas como realizadas na Grade Horária e configure o valor hora/aula dos professores.
+            Marque aulas como realizadas na Grade Horária e configure o valor de entrada dos professores.
           </p>
         </div>
       ) : (
@@ -334,7 +334,7 @@ export default function PagamentosPage() {
           <div className="grid grid-cols-4 gap-4 mb-6">
             {[
               { label: "Total a Pagar", valor: fmtMoeda(cTotalPagar / 100), color: "var(--color-primary)" },
-              { label: "Horas Realizadas", valor: `${r2(cHoras / 10)}h`, color: "var(--color-navy)" },
+              { label: "Aulas Ministradas", valor: String(cAulas), color: "var(--color-navy)" },
               { label: "Professores", valor: String(cProfs), color: "#0EA5E9" },
               { label: "Já Pagos", valor: `${cPagos}/${linhas.length}`, sub: totalPagos > 0 ? fmtMoeda(valorPago) : null, color: "#16A34A" },
             ].map(({ label, valor, sub, color }) => (
@@ -351,8 +351,8 @@ export default function PagamentosPage() {
             <div className="grid grid-cols-12 px-5 py-3 text-xs font-bold uppercase tracking-wide"
               style={{ backgroundColor: "var(--color-surface)", borderBottom: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
               <span className="col-span-3">Professor</span>
-              <span className="col-span-2 text-center">Valor/Hora</span>
-              <span className="col-span-2 text-center">Horas</span>
+              <span className="col-span-2 text-center">Valor de Entrada</span>
+              <span className="col-span-2 text-center">Aulas</span>
               <span className="col-span-2 text-center font-bold" style={{ color: "var(--color-navy)" }}>Total</span>
               <span className="col-span-1 text-center">Status</span>
               <span className="col-span-2 no-print" />
@@ -370,14 +370,14 @@ export default function PagamentosPage() {
                   </div>
 
                   <div className="col-span-2 text-center">
-                    {l.valor_hora > 0
-                      ? <span className="text-sm font-medium" style={{ color: "var(--color-text-secondary)" }}>{fmtMoeda(l.valor_hora)}</span>
+                    {l.valor_de_entrada > 0
+                      ? <span className="text-sm font-medium" style={{ color: "var(--color-text-secondary)" }}>{fmtMoeda(l.valor_de_entrada)}</span>
                       : <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: "#FEF3C7", color: "#92400E" }}>Sem valor</span>
                     }
                   </div>
 
                   <span className="col-span-2 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
-                    {r2(l.total_horas)}h
+                    {l.total_aulas}
                   </span>
 
                   <span className="col-span-2 text-center font-extrabold text-sm" style={{ color: "var(--color-primary)" }}>

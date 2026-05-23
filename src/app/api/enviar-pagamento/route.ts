@@ -27,8 +27,8 @@ function gerarPagamentoHTML(
   nome: string,
   periodo: string,
   tipo: string,
-  total_horas: number,
-  valor_hora: number,
+  total_aulas: number,
+  valor_de_entrada: number,
   total_valor: number
 ): string {
   const fmtMoeda = (v: number) =>
@@ -83,12 +83,12 @@ function gerarPagamentoHTML(
           <span class="value">${tipoLabel}</span>
         </div>
         <div class="card-row">
-          <span class="label">Horas realizadas</span>
-          <span class="value">${total_horas}h</span>
+          <span class="label">Aulas ministradas</span>
+          <span class="value">${total_aulas}</span>
         </div>
         <div class="card-row">
-          <span class="label">Valor por hora/aula</span>
-          <span class="value">${fmtMoeda(valor_hora)}</span>
+          <span class="label">Valor de entrada</span>
+          <span class="value">${fmtMoeda(valor_de_entrada)}</span>
         </div>
       </div>
       <div class="total-row">
@@ -111,13 +111,13 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const body = await req.json();
-  const { professor_id, periodo_inicio, periodo_fim, tipo, total_horas, valor_hora, total_valor } = body as {
+  const { professor_id, periodo_inicio, periodo_fim, tipo, total_aulas, valor_de_entrada, total_valor } = body as {
     professor_id: string;
     periodo_inicio: string;
     periodo_fim: string;
     tipo: string;
-    total_horas: number;
-    valor_hora: number;
+    total_aulas: number;
+    valor_de_entrada: number;
     total_valor: number;
   };
 
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
     new Date(d + "T00:00:00").toLocaleDateString("pt-BR");
 
   const periodo = `${fmtDate(periodo_inicio)} a ${fmtDate(periodo_fim)}`;
-  const html = gerarPagamentoHTML(professor.nome, periodo, tipo, total_horas, valor_hora, total_valor);
+  const html = gerarPagamentoHTML(professor.nome, periodo, tipo, total_aulas, valor_de_entrada, total_valor);
 
   try {
     await resend.emails.send({

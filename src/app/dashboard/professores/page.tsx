@@ -10,7 +10,7 @@ import Input from "@/components/ui/Input";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
-interface Professor { id: string; nome: string; email: string; ativo: boolean; valor_hora_aula: number; }
+interface Professor { id: string; nome: string; email: string; ativo: boolean; valor_de_entrada: number; }
 
 export default function ProfessoresPage() {
   const [professores, setProfessores] = useState<Professor[]>([]);
@@ -33,12 +33,12 @@ export default function ProfessoresPage() {
   useEffect(() => { load(); }, []);
 
   function openNew() { setEditing(null); setNome(""); setEmail(""); setValorHora(""); setModalOpen(true); }
-  function openEdit(p: Professor) { setEditing(p); setNome(p.nome); setEmail(p.email); setValorHora(p.valor_hora_aula ? String(p.valor_hora_aula) : ""); setModalOpen(true); }
+  function openEdit(p: Professor) { setEditing(p); setNome(p.nome); setEmail(p.email); setValorHora(p.valor_de_entrada ? String(p.valor_de_entrada) : ""); setModalOpen(true); }
 
   async function handleSave() {
     if (!nome.trim() || !email.trim()) return;
     setSaving(true);
-    const payload = { nome, email, valor_hora_aula: valorHora ? Number(valorHora) : 0 };
+    const payload = { nome, email, valor_de_entrada: valorHora ? Number(valorHora) : 0 };
     if (editing) {
       await supabase.from("professores").update(payload).eq("id", editing.id);
       toast.success("Professor atualizado com sucesso.");
@@ -94,7 +94,7 @@ export default function ProfessoresPage() {
               <tr style={{ borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-background)" }}>
                 <th className="text-left px-5 py-3 font-semibold text-xs uppercase tracking-wide" style={{ color: "var(--color-text-secondary)" }}>Nome</th>
                 <th className="text-left px-5 py-3 font-semibold text-xs uppercase tracking-wide" style={{ color: "var(--color-text-secondary)" }}>Email</th>
-                <th className="text-right px-5 py-3 font-semibold text-xs uppercase tracking-wide" style={{ color: "var(--color-text-secondary)" }}>Valor Hora/Aula</th>
+                <th className="text-right px-5 py-3 font-semibold text-xs uppercase tracking-wide" style={{ color: "var(--color-text-secondary)" }}>Valor de Entrada</th>
                 <th className="px-5 py-3 w-20"></th>
               </tr>
             </thead>
@@ -114,8 +114,8 @@ export default function ProfessoresPage() {
                 >
                   <td className="px-5 py-3.5 font-medium" style={{ color: "var(--color-text-primary)" }}>{p.nome}</td>
                   <td className="px-5 py-3.5" style={{ color: "var(--color-text-secondary)" }}>{p.email}</td>
-                  <td className="px-5 py-3.5 text-right font-semibold" style={{ color: p.valor_hora_aula > 0 ? "#16A34A" : "var(--color-text-muted)" }}>
-                    {fmtMoeda(p.valor_hora_aula)}
+                  <td className="px-5 py-3.5 text-right font-semibold" style={{ color: p.valor_de_entrada > 0 ? "#16A34A" : "var(--color-text-muted)" }}>
+                    {fmtMoeda(p.valor_de_entrada)}
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2 justify-end">
@@ -141,7 +141,7 @@ export default function ProfessoresPage() {
         <div className="flex flex-col gap-4">
           <Input label="Nome completo" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Leandro Pereira" />
           <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="professor@email.com" />
-          <Input label="Valor Hora/Aula (R$)" type="number" value={valorHora} onChange={(e) => setValorHora(e.target.value)} placeholder="0,00" />
+          <Input label="Valor de Entrada (R$)" type="number" value={valorHora} onChange={(e) => setValorHora(e.target.value)} placeholder="0,00" />
           <div className="flex gap-3 justify-end pt-2">
             <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancelar</Button>
             <Button onClick={handleSave} disabled={saving}>{saving ? "Salvando..." : "Salvar"}</Button>

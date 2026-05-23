@@ -195,7 +195,7 @@ export default function TirinhasPage() {
                   <div>
                     <p className="font-semibold text-sm" style={{ color: "var(--color-navy)" }}>{prof.nome}</p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
-                      {prof.email} · {resumo.count} aula{resumo.count !== 1 ? "s" : ""} · {resumo.carga_total}h
+                      {prof.email} · {resumo.count} aula{resumo.count !== 1 ? "s" : ""} ministrada{resumo.count !== 1 ? "s" : ""}
                     </p>
                   </div>
 
