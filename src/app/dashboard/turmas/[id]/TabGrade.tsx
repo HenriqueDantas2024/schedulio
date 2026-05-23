@@ -196,9 +196,9 @@ export default function TabGrade({ turmaId, turno }: { turmaId: string; turno: s
 
   const professoresDaMateria = turmasMaterias.find(t => t.materia_id === form.materia_id)?.professores ?? [];
 
-  const horasPorMateria = turmasMaterias.map(tm => {
+  const aulasPorMateria = turmasMaterias.map(tm => {
     const total = tm.carga_horaria_total;
-    const agendadas = aulas.filter(a => a.materia_id === tm.materia_id).reduce((s, a) => s + Number(a.carga_horaria), 0);
+    const agendadas = aulas.filter(a => a.materia_id === tm.materia_id).length;
     return { nome: tm.materias.nome, total, agendadas };
   });
 
@@ -255,7 +255,7 @@ export default function TabGrade({ turmaId, turno }: { turmaId: string; turno: s
                         </span>
                         <div>
                           <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)", textDecoration: a.realizada ? "line-through" : "none" }}>{a.professores.nome}</p>
-                          <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{a.materias.nome} · {a.carga_horaria}h</p>
+                          <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{a.materias.nome} · 1 aula</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
@@ -281,23 +281,23 @@ export default function TabGrade({ turmaId, turno }: { turmaId: string; turno: s
             })}
           </div>
 
-          {/* Progresso de horas */}
-          {horasPorMateria.length > 0 && (
+          {/* Progresso de aulas */}
+          {aulasPorMateria.length > 0 && (
             <div className="rounded-xl p-4" style={{ backgroundColor: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
-              <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "var(--color-text-secondary)" }}>Horas acumuladas no curso</p>
+              <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "var(--color-text-secondary)" }}>Aulas agendadas no curso</p>
               <div className="flex flex-col gap-2.5">
-                {horasPorMateria.map(({ nome, total, agendadas }) => {
-                  const pct = Math.min((agendadas / total) * 100, 100);
+                {aulasPorMateria.map(({ nome, total, agendadas }) => {
+                  const pct = total > 0 ? Math.min((agendadas / total) * 100, 100) : 0;
                   return (
                     <div key={nome}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-medium" style={{ color: "var(--color-text-primary)" }}>{nome}</span>
-                        <span className="text-xs" style={{ color: agendadas >= total ? "var(--color-success)" : "var(--color-text-muted)" }}>
-                          {agendadas}h / {total}h
+                        <span className="text-xs" style={{ color: agendadas >= total ? "#16A34A" : "var(--color-text-muted)" }}>
+                          {agendadas} / {total} aula{total !== 1 ? "s" : ""}
                         </span>
                       </div>
                       <div className="h-1.5 rounded-full" style={{ backgroundColor: "var(--color-border)" }}>
-                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: agendadas >= total ? "var(--color-success)" : "var(--color-primary)" }} />
+                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: agendadas >= total ? "#16A34A" : "var(--color-primary)" }} />
                       </div>
                     </div>
                   );

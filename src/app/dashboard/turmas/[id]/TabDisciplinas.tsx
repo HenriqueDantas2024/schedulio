@@ -134,7 +134,7 @@ export default function TabDisciplinas({ turmaId }: { turmaId: string }) {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <p className="font-semibold text-sm" style={{ color: "var(--color-navy)" }}>{tm.materias.nome}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{tm.carga_horaria_total}h no total</p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{tm.carga_horaria_total} aula{tm.carga_horaria_total !== 1 ? "s" : ""} no total</p>
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" variant="ghost" onClick={() => setModalProf({ open: true, turmaMateria: tm })}>
@@ -174,8 +174,8 @@ export default function TabDisciplinas({ turmaId }: { turmaId: string }) {
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>Carga horária total (h)</label>
-            <input type="number" value={cargaHoraria} onChange={(e) => setCargaHoraria(e.target.value)} placeholder="Ex: 50"
+            <label className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>Quantidade de aulas</label>
+            <input type="number" value={cargaHoraria} onChange={(e) => setCargaHoraria(e.target.value)} placeholder="Ex: 20"
               className="w-full px-4 py-2.5 rounded-lg text-sm outline-none"
               style={{ border: "1.5px solid var(--color-border)", backgroundColor: "var(--color-background)", color: "var(--color-text-primary)" }}
             />
