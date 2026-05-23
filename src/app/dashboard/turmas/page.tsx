@@ -6,7 +6,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
-import { Plus, Pencil, Trash2, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronRight, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { SkeletonTable } from "@/components/ui/Skeleton";
@@ -79,7 +79,14 @@ export default function TurmasPage() {
       <PageHeader
         title="Turmas"
         description={`${turmas.length} turma${turmas.length !== 1 ? "s" : ""} cadastrada${turmas.length !== 1 ? "s" : ""}`}
-        action={<Button onClick={openNew}><Plus size={16} /> Nova Turma</Button>}
+        action={
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={() => router.push("/dashboard/turmas/importar")}>
+              <Sparkles size={15} /> Importar Edital
+            </Button>
+            <Button onClick={openNew}><Plus size={16} /> Nova Turma</Button>
+          </div>
+        }
       />
 
       {loading ? (
