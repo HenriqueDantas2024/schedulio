@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ const allNavItems = [
   { href: "/dashboard/professores",  label: "Professores",   icon: Users,           roles: ["coordenador", "diretor"] },
   { href: "/dashboard/materias",     label: "Matérias",      icon: BookOpenText,    roles: ["coordenador", "diretor"] },
   { href: "/dashboard/turmas",       label: "Grade Horária", icon: CalendarDots,    roles: ["coordenador", "diretor"] },
-  { href: "/dashboard/tirinhas",     label: "Tirinhas",      icon: EnvelopeSimple,  roles: ["coordenador", "diretor"] },
+  { href: "/dashboard/tirinhas",     label: "Comunicados",   icon: EnvelopeSimple,  roles: ["coordenador", "diretor"] },
   { href: "/dashboard/pagamentos",   label: "Pagamentos",    icon: CurrencyDollar,  roles: ["diretor"] },
   { href: "/dashboard/relatorios",   label: "Relatórios",    icon: ChartLineUp,     roles: ["coordenador", "diretor"] },
 ];
@@ -56,7 +56,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Logo */}
         <div className="flex items-center justify-center px-6 py-4" style={{ borderBottom: "1px solid var(--color-navy-medium)" }}>
-          <img src="/imp_concursos_logo.png" alt="Schedulio" style={{ width: 120, height: "auto", borderRadius: 8 }} />
+          <span className="text-xl font-extrabold tracking-tight" style={{ color: "#fff", letterSpacing: "-0.5px" }}>Schedulio</span>
         </div>
 
         {/* Nav */}

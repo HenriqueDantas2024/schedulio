@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -10,8 +10,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Grade Horária — Schedulio",
-  description: "Sistema de gestão de grade horária do Schedulio",
+  title: "Schedulio — Grade Horária",
+  description: "Sistema de gestão de grade horária e professores",
 };
 
 export default function RootLayout({

@@ -1,7 +1,6 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Users, GraduationCap, BookOpen, Calendar, BarChart2, Mail } from "lucide-react";
 import { useCountUp } from "@/lib/hooks/useCountUp";
@@ -22,30 +21,21 @@ const navLinks = [
   { label: "Professores",  icon: Users,        href: "/dashboard/professores", color: "#E8193C", bg: "#FDE8EC" },
   { label: "Matérias",     icon: BookOpen,     href: "/dashboard/materias",    color: "#0EA5E9", bg: "#E0F2FE" },
   { label: "Grade Horária",icon: Calendar,     href: "/dashboard/turmas",      color: "#F59E0B", bg: "#FEF3C7" },
-  { label: "Tirinhas",     icon: Mail,         href: "/dashboard/tirinhas",    color: "#10B981", bg: "#D1FAE5" },
+  { label: "Comunicados",  icon: Mail,         href: "/dashboard/tirinhas",    color: "#10B981", bg: "#D1FAE5" },
   { label: "Relatórios",   icon: BarChart2,    href: "/dashboard/relatorios",  color: "#8B5CF6", bg: "#EDE9FE" },
 ];
-
-const slides = ["/foto-aguas-claras.jpeg", "/foto-imp-exterior.jpeg"];
 
 export default function DashboardHome() {
   const supabase = createClient();
 
-  const [slide, setSlide]   = useState(0);
-  const [kpis, setKpis]     = useState({ professores: 0, turmas: 0, materias: 0, aulasSemana: 0, pctMes: 0 });
-  const [ready, setReady]   = useState(false);
+  const [kpis, setKpis]   = useState({ professores: 0, turmas: 0, materias: 0, aulasSemana: 0, pctMes: 0 });
+  const [ready, setReady] = useState(false);
 
   const cProfs    = useCountUp(kpis.professores, 1200, ready);
   const cTurmas   = useCountUp(kpis.turmas,      1200, ready);
   const cMaterias = useCountUp(kpis.materias,    1200, ready);
   const cAulas    = useCountUp(kpis.aulasSemana, 1200, ready);
   const cPct      = useCountUp(kpis.pctMes,      1400, ready);
-
-  // Slideshow
-  useEffect(() => {
-    const t = setInterval(() => setSlide(s => (s + 1) % slides.length), 5000);
-    return () => clearInterval(t);
-  }, []);
 
   // KPIs
   useEffect(() => {
@@ -105,55 +95,24 @@ export default function DashboardHome() {
     <div>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden" style={{ height: 320 }}>
-
-        {/* Photos */}
-        {slides.map((src, i) => (
-          <div key={src} className="absolute inset-0 transition-opacity"
-            style={{ opacity: slide === i ? 1 : 0, transitionDuration: "1200ms" }}>
-            <Image src={src} alt="" fill className="object-cover" priority={i === 0} sizes="100vw" />
-          </div>
-        ))}
-
-        {/* Overlay */}
-        <div className="absolute inset-0"
-          style={{ background: "linear-gradient(135deg, rgba(26,31,54,0.90) 0%, rgba(232,25,60,0.68) 100%)" }} />
-
-        {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-between p-8">
-          <div className="flex items-center justify-between">
-            <img src="/imp_concursos_logo.png" alt="Schedulio"
-              style={{ width: 68, borderRadius: 8 }} />
-            <span className="text-sm capitalize px-3 py-1.5 rounded-full"
-              style={{ color: "rgba(255,255,255,0.85)", backgroundColor: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)" }}>
-              {dataAtual}
-            </span>
-          </div>
-
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest mb-2"
-              style={{ color: "rgba(255,255,255,0.55)" }}>
-              Painel de Coordenação
-            </p>
-            <h1 className="text-3xl font-extrabold text-white leading-tight mb-1">
-              Bem-vindo ao Grade Horária
-            </h1>
-            <p style={{ color: "rgba(255,255,255,0.65)" }}>
-              Schedulio — gestão inteligente de professores e aulas.
-            </p>
-
-            {/* Dots */}
-            <div className="flex gap-2 mt-4">
-              {slides.map((_, i) => (
-                <button key={i} onClick={() => setSlide(i)}
-                  className="rounded-full transition-all"
-                  style={{
-                    width: slide === i ? 22 : 8, height: 8,
-                    backgroundColor: slide === i ? "#fff" : "rgba(255,255,255,0.35)",
-                  }} />
-              ))}
-            </div>
-          </div>
+      <div className="relative overflow-hidden flex flex-col justify-between p-8" style={{ height: 320, background: "linear-gradient(135deg, #1a1f36 0%, #2d3561 60%, #E8193C 100%)" }}>
+        <div className="flex items-center justify-between">
+          <span className="text-2xl font-extrabold tracking-tight" style={{ color: "#fff" }}>Schedulio</span>
+          <span className="text-sm capitalize px-3 py-1.5 rounded-full"
+            style={{ color: "rgba(255,255,255,0.85)", backgroundColor: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)" }}>
+            {dataAtual}
+          </span>
+        </div>
+        <div>
+          <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(255,255,255,0.55)" }}>
+            Painel de Coordenação
+          </p>
+          <h1 className="text-3xl font-extrabold text-white leading-tight mb-1">
+            Bem-vindo ao Schedulio
+          </h1>
+          <p style={{ color: "rgba(255,255,255,0.65)" }}>
+            Gestão inteligente de professores, turmas e grade horária.
+          </p>
         </div>
       </div>
 
