@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -42,7 +42,7 @@ function gerarPagamentoHTML(
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resumo de Pagamento — IMP Concursos</title>
+  <title>Resumo de Pagamento — Schedulio</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; color: #333; }
     .container { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
@@ -65,7 +65,7 @@ function gerarPagamentoHTML(
 <body>
   <div class="container">
     <div class="header">
-      <h1>IMP Concursos</h1>
+      <h1>Schedulio</h1>
       <p>Resumo de Pagamento ${tipoLabel}</p>
     </div>
     <div class="body">
@@ -97,7 +97,7 @@ function gerarPagamentoHTML(
       </div>
     </div>
     <div class="footer">
-      IMP Concursos &bull; Este é um email automático, não responda.
+      Schedulio &bull; Este é um email automático, não responda.
     </div>
   </div>
 </body>

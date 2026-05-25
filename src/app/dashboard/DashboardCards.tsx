@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -122,7 +122,7 @@ export default function DashboardHome() {
         {/* Content */}
         <div className="relative z-10 h-full flex flex-col justify-between p-8">
           <div className="flex items-center justify-between">
-            <img src="/imp_concursos_logo.png" alt="IMP Concursos"
+            <img src="/imp_concursos_logo.png" alt="Schedulio"
               style={{ width: 68, borderRadius: 8 }} />
             <span className="text-sm capitalize px-3 py-1.5 rounded-full"
               style={{ color: "rgba(255,255,255,0.85)", backgroundColor: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)" }}>
@@ -139,7 +139,7 @@ export default function DashboardHome() {
               Bem-vindo ao Grade Horária
             </h1>
             <p style={{ color: "rgba(255,255,255,0.65)" }}>
-              IMP Concursos — gestão inteligente de professores e aulas.
+              Schedulio — gestão inteligente de professores e aulas.
             </p>
 
             {/* Dots */}

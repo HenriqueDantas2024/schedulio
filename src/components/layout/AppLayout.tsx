@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -56,7 +56,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Logo */}
         <div className="flex items-center justify-center px-6 py-4" style={{ borderBottom: "1px solid var(--color-navy-medium)" }}>
-          <img src="/imp_concursos_logo.png" alt="IMP Concursos" style={{ width: 120, height: "auto", borderRadius: 8 }} />
+          <img src="/imp_concursos_logo.png" alt="Schedulio" style={{ width: 120, height: "auto", borderRadius: 8 }} />
         </div>
 
         {/* Nav */}

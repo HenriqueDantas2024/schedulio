@@ -1,4 +1,4 @@
-const DIAS_LABEL: Record<string, string> = {
+﻿const DIAS_LABEL: Record<string, string> = {
   segunda: "Segunda-feira",
   terca: "Terça-feira",
   quarta: "Quarta-feira",
@@ -78,7 +78,7 @@ export function gerarTirinhaHTML(professorNome: string, semanaLabel: string, aul
       <span style="font-size:28px;font-weight:900;color:#E8193C;letter-spacing:-1px;">imp</span>
       <div>
         <div style="color:#fff;font-size:13px;font-weight:700;line-height:1.2;">Grade Horária</div>
-        <div style="color:rgba(255,255,255,0.5);font-size:11px;">IMP Concursos</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:11px;">Schedulio</div>
       </div>
     </div>
 
@@ -116,7 +116,7 @@ export function gerarTirinhaHTML(professorNome: string, semanaLabel: string, aul
     <!-- Footer -->
     <div style="padding:16px 32px;background:#F7F8FC;border-top:1px solid #E2E8F0;">
       <p style="margin:0;font-size:11px;color:#94A3B8;text-align:center;">
-        Este email foi enviado automaticamente pelo sistema Grade Horária IMP.<br>
+        Este email foi enviado automaticamente pelo sistema Schedulio.<br>
         Em caso de dúvidas, entre em contato com a coordenação.
       </p>
     </div>

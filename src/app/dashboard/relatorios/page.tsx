@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -289,7 +289,7 @@ export default function RelatoriosPage() {
 
       {/* Print-only header */}
       <div className="print-only mb-6" style={{ borderBottom: "2px solid var(--color-navy)", paddingBottom: "12px" }}>
-        <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-primary)" }}>IMP Concursos — Grade Horária</p>
+        <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-primary)" }}>Schedulio — Grade Horária</p>
         <h2 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>
           Relatório: {{ professores: "Professores", turmas: "Por Turma", grade: "Grade Completa", materias: "Por Matéria" }[aba]}
         </h2>

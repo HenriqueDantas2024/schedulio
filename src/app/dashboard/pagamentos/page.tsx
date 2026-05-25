@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -258,7 +258,7 @@ export default function PagamentosPage() {
 
       {/* Print-only header */}
       <div className="print-only mb-6" style={{ borderBottom: "2px solid var(--color-navy)", paddingBottom: "12px" }}>
-        <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-primary)" }}>IMP Concursos — Grade Horária</p>
+        <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-primary)" }}>Schedulio — Grade Horária</p>
         <h2 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>
           Pagamentos — {aba === "semanal" ? "Semanal" : "Mensal"}
         </h2>
