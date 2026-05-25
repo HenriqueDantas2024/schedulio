@@ -124,8 +124,8 @@ export default function ProfessoresPage() {
                         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
                       ><Pencil size={14} /></button>
                       <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg transition-all"
-                        style={{ color: confirmingDelete === p.id ? "var(--color-primary)" : "var(--color-text-muted)", backgroundColor: confirmingDelete === p.id ? "#FDE8EC" : "transparent" }}
-                        onMouseEnter={(e) => { if (confirmingDelete !== p.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}}
+                        style={{ color: confirmingDelete === p.id ? "var(--color-primary)" : "var(--color-text-muted)", backgroundColor: confirmingDelete === p.id ? "#FEF2F2" : "transparent" }}
+                        onMouseEnter={(e) => { if (confirmingDelete !== p.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}}
                         onMouseLeave={(e) => { if (confirmingDelete !== p.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}}
                       ><Trash2 size={14} /></button>
                     </div>

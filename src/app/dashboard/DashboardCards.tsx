@@ -18,10 +18,10 @@ function addDays(d: string, n: number) {
 }
 
 const navLinks = [
-  { label: "Professores",  icon: Users,        href: "/dashboard/professores", color: "#E8193C", bg: "#FDE8EC" },
+  { label: "Professores",  icon: Users,        href: "/dashboard/professores", color: "#1D40B0", bg: "#EEF3FF" },
   { label: "Matérias",     icon: BookOpen,     href: "/dashboard/materias",    color: "#0EA5E9", bg: "#E0F2FE" },
   { label: "Grade Horária",icon: Calendar,     href: "/dashboard/turmas",      color: "#F59E0B", bg: "#FEF3C7" },
-  { label: "Comunicados",  icon: Mail,         href: "/dashboard/tirinhas",    color: "#10B981", bg: "#D1FAE5" },
+  { label: "Comunicados",  icon: Mail,         href: "/dashboard/tirinhas",    color: "#2BBFAA", bg: "#E6F9F7" },
   { label: "Relatórios",   icon: BarChart2,    href: "/dashboard/relatorios",  color: "#8B5CF6", bg: "#EDE9FE" },
 ];
 
@@ -95,7 +95,7 @@ export default function DashboardHome() {
     <div>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden flex flex-col justify-between p-8" style={{ height: 320, background: "linear-gradient(135deg, #1a1f36 0%, #2d3561 60%, #E8193C 100%)" }}>
+      <div className="relative overflow-hidden flex flex-col justify-between p-8" style={{ height: 320, background: "linear-gradient(135deg, #0F1D54 0%, #1A2D7A 55%, #2BBFAA 100%)" }}>
         <div className="flex items-center justify-between">
           <span className="text-2xl font-extrabold tracking-tight" style={{ color: "#fff" }}>Schedulio</span>
           <span className="text-sm capitalize px-3 py-1.5 rounded-full"
@@ -120,8 +120,8 @@ export default function DashboardHome() {
       <div className="grid grid-cols-5 gap-4 px-8 py-6"
         style={{ backgroundColor: "var(--color-background)" }}>
         {([
-          { label: "Professores Ativos", valor: cProfs,          Icon: Users,        color: "#E8193C" },
-          { label: "Turmas Ativas",      valor: cTurmas,         Icon: GraduationCap,color: "#1A1F36" },
+          { label: "Professores Ativos", valor: cProfs,          Icon: Users,        color: "#1D40B0" },
+          { label: "Turmas Ativas",      valor: cTurmas,         Icon: GraduationCap,color: "#0F1D54" },
           { label: "Matérias",           valor: cMaterias,       Icon: BookOpen,     color: "#0EA5E9" },
           { label: "Aulas esta semana",  valor: cAulas,          Icon: Calendar,     color: "#F59E0B" },
           { label: "Concluído no mês",   valor: `${cPct}%`,      Icon: BarChart2,    color: "#10B981" },

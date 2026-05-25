@@ -1,15 +1,23 @@
-/* Grade Horária IMP — Design Tokens */
-/* Baseado na identidade visual do IMP Concursos */
+/* Schedulio — Design Tokens */
+/* Cores extraídas da logo oficial: azul royal #1D40B0 + teal mint #2BBFAA */
 
 :root {
   /* Cores Primárias */
-  --color-primary: #E8193C;
-  --color-primary-hover: #C4152F;
-  --color-primary-light: #FDE8EC;
+  --color-primary: #1D40B0;
+  --color-primary-hover: #1835A0;
+  --color-primary-light: #EEF3FF;
 
-  /* Cores Institucionais */
-  --color-navy: #1A1F36;
-  --color-navy-medium: #2D3354;
+  /* Acento (teal do logo) */
+  --color-accent: #2BBFAA;
+  --color-accent-hover: #22AA96;
+  --color-accent-light: #E6F9F7;
+
+  /* Gradiente da marca */
+  --color-gradient: linear-gradient(135deg, #1D40B0 0%, #2BBFAA 100%);
+
+  /* Sidebar */
+  --color-navy: #0F1D54;
+  --color-navy-medium: #1A2D7A;
 
   /* Superfícies */
   --color-background: #F7F8FC;
@@ -17,7 +25,7 @@
   --color-border: #E2E8F0;
 
   /* Textos */
-  --color-text-primary: #1A1F36;
+  --color-text-primary: #0F1D54;
   --color-text-secondary: #64748B;
   --color-text-muted: #94A3B8;
 
@@ -27,11 +35,11 @@
   --color-error: #EF4444;
 
   /* Turnos */
-  --color-turno-matutino: #DBEAFE;
-  --color-turno-matutino-text: #1E40AF;
+  --color-turno-matutino: #EEF3FF;
+  --color-turno-matutino-text: #1D40B0;
   --color-turno-tarde: #FEF3C7;
   --color-turno-tarde-text: #92400E;
-  --color-turno-noturno: #1E3A5F;
+  --color-turno-noturno: #0F1D54;
   --color-turno-noturno-text: #FFFFFF;
 
   /* Tipografia */

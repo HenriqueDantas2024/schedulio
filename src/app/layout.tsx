@@ -10,8 +10,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Schedulio — Grade Horária",
-  description: "Sistema de gestão de grade horária e professores",
+  title: "Schedulio",
+  description: "Chega de planilha. Sua escola merece mais.",
 };
 
 export default function RootLayout({

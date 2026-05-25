@@ -110,8 +110,8 @@ export default function MateriasPage() {
                         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
                       ><Pencil size={14} /></button>
                       <button onClick={() => handleDelete(m.id)} className="p-1.5 rounded-lg transition-all"
-                        style={{ color: confirmingDelete === m.id ? "var(--color-primary)" : "var(--color-text-muted)", backgroundColor: confirmingDelete === m.id ? "#FDE8EC" : "transparent" }}
-                        onMouseEnter={(e) => { if (confirmingDelete !== m.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}}
+                        style={{ color: confirmingDelete === m.id ? "var(--color-primary)" : "var(--color-text-muted)", backgroundColor: confirmingDelete === m.id ? "#FEF2F2" : "transparent" }}
+                        onMouseEnter={(e) => { if (confirmingDelete !== m.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}}
                         onMouseLeave={(e) => { if (confirmingDelete !== m.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}}
                       ><Trash2 size={14} /></button>
                     </div>

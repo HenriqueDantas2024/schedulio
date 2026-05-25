@@ -270,7 +270,7 @@ export default function TabGrade({ turmaId, turno }: { turmaId: string; turno: s
                           {a.realizada ? <CheckCircle2 size={16} /> : <Circle size={16} />}
                         </button>
                         <button onClick={() => handleDelete(a.id)} className="p-1.5 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}
                           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
                         ><Trash2 size={13} /></button>
                       </div>

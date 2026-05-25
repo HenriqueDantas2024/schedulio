@@ -14,9 +14,9 @@ const TURNO_COLOR: Record<string, string> = {
   N: "#1E3A5F",
 };
 const TURNO_BG: Record<string, string> = {
-  M: "#DBEAFE",
+  M: "#EEF3FF",
   T: "#FEF3C7",
-  N: "#E0E7FF",
+  N: "#0F1D54",
 };
 
 interface AulaEmail {
@@ -40,7 +40,7 @@ export function gerarTirinhaHTML(professorNome: string, semanaLabel: string, aul
 
     return aulasNoDia.map(a => `
       <tr>
-        <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;font-weight:600;color:#1A1F36;white-space:nowrap;">
+        <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;font-weight:600;color:#0F1D54;white-space:nowrap;">
           ${aulasPorDia[dia]}
         </td>
         <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;">
@@ -48,10 +48,10 @@ export function gerarTirinhaHTML(professorNome: string, semanaLabel: string, aul
             ${TURNO_LABEL[a.turno]}
           </span>
         </td>
-        <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;color:#1A1F36;white-space:nowrap;">
+        <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;color:#0F1D54;white-space:nowrap;">
           ${a.horario_inicio.slice(0, 5)} – ${a.horario_fim.slice(0, 5)}
         </td>
-        <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;color:#1A1F36;">
+        <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;color:#0F1D54;">
           ${a.materias.nome}
         </td>
         <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;color:#64748B;white-space:nowrap;">
@@ -74,17 +74,14 @@ export function gerarTirinhaHTML(professorNome: string, semanaLabel: string, aul
   <div style="max-width:680px;margin:32px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
 
     <!-- Header -->
-    <div style="background:#1A1F36;padding:24px 32px;display:flex;align-items:center;gap:12px;">
-      <span style="font-size:28px;font-weight:900;color:#E8193C;letter-spacing:-1px;">imp</span>
-      <div>
-        <div style="color:#fff;font-size:13px;font-weight:700;line-height:1.2;">Grade Horária</div>
-        <div style="color:rgba(255,255,255,0.5);font-size:11px;">Schedulio</div>
-      </div>
+    <div style="background:linear-gradient(135deg,#0F1D54 0%,#1A2D7A 55%,#2BBFAA 100%);padding:24px 32px;">
+      <span style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">schedulio</span>
+      <div style="color:rgba(255,255,255,0.6);font-size:11px;margin-top:2px;">Grade de Aulas</div>
     </div>
 
     <!-- Conteúdo -->
     <div style="padding:28px 32px;">
-      <h2 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#1A1F36;">Olá, ${professorNome}!</h2>
+      <h2 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#0F1D54;">Olá, ${professorNome}!</h2>
       <p style="margin:0 0 20px;color:#64748B;font-size:14px;">
         Segue sua grade de aulas para a semana de <strong>${semanaLabel}</strong>.
       </p>
@@ -109,7 +106,7 @@ export function gerarTirinhaHTML(professorNome: string, semanaLabel: string, aul
       <!-- Resumo -->
       <div style="margin-top:16px;padding:14px 18px;background:#F7F8FC;border-radius:10px;display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:13px;color:#64748B;">Total de aulas nesta semana</span>
-        <span style="font-size:15px;font-weight:800;color:#E8193C;">${aulas.length} aula${aulas.length !== 1 ? "s" : ""} · ${totalHoras}h</span>
+        <span style="font-size:15px;font-weight:800;color:#1D40B0;">${aulas.length} aula${aulas.length !== 1 ? "s" : ""} · ${totalHoras}h</span>
       </div>
     </div>
 

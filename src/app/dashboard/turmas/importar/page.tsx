@@ -294,7 +294,7 @@ export default function ImportarEditalPage() {
                 />
                 <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>h</span>
                 <button onClick={() => removeDisciplina(i)} className="p-1 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; }}
                 ><Trash2 size={13} /></button>
               </div>

@@ -55,8 +55,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="flex flex-col w-60 shrink-0 h-full" style={{ backgroundColor: "var(--color-navy)", borderRight: "1px solid var(--color-navy-medium)" }}>
 
         {/* Logo */}
-        <div className="flex items-center justify-center px-6 py-4" style={{ borderBottom: "1px solid var(--color-navy-medium)" }}>
-          <span className="text-xl font-extrabold tracking-tight" style={{ color: "#fff", letterSpacing: "-0.5px" }}>Schedulio</span>
+        <div className="flex items-center justify-center px-6 py-5" style={{ borderBottom: "1px solid var(--color-navy-medium)" }}>
+          <span
+            className="text-xl font-extrabold tracking-tight select-none"
+            style={{
+              background: "linear-gradient(135deg, #fff 20%, #2BBFAA 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              letterSpacing: "-0.5px",
+            }}
+          >
+            schedulio
+          </span>
         </div>
 
         {/* Nav */}

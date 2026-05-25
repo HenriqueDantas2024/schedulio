@@ -143,7 +143,7 @@ export default function TabDisciplinas({ turmaId }: { turmaId: string }) {
                     <UserPlus size={12} /> Professores
                   </Button>
                   <button onClick={() => handleRemoveDisc(tm.id)} className="p-1.5 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
                   ><Trash2 size={13} /></button>
                 </div>

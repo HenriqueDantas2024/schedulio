@@ -136,8 +136,8 @@ export default function TurmasPage() {
                         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}
                       ><Pencil size={14} /></button>
                       <button onClick={() => handleDelete(t.id)} className="p-1.5 rounded-lg transition-all"
-                        style={{ color: confirmingDelete === t.id ? "var(--color-primary)" : "var(--color-text-muted)", backgroundColor: confirmingDelete === t.id ? "#FDE8EC" : "transparent" }}
-                        onMouseEnter={(e) => { if (confirmingDelete !== t.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FDE8EC"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}}
+                        style={{ color: confirmingDelete === t.id ? "var(--color-primary)" : "var(--color-text-muted)", backgroundColor: confirmingDelete === t.id ? "#FEF2F2" : "transparent" }}
+                        onMouseEnter={(e) => { if (confirmingDelete !== t.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; }}}
                         onMouseLeave={(e) => { if (confirmingDelete !== t.id) { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; }}}
                       ><Trash2 size={14} /></button>
                     </div>
