@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/ui/Button";
 import { toast } from "sonner";
-import { Upload, ArrowLeft, Sparkles, Trash2, Plus, Loader2 } from "lucide-react";
+import { Upload, ArrowLeft, Sparkles, Trash2, Plus, Loader2, FileText } from "lucide-react";
 
 interface Disciplina { nome: string; carga_horaria: number; }
 
@@ -18,6 +18,17 @@ interface EditalExtraido {
 }
 
 type Etapa = "upload" | "processando" | "revisao";
+
+function isDocxFile(file: File) {
+  return (
+    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    file.name.toLowerCase().endsWith(".docx")
+  );
+}
+
+function isValidFile(file: File) {
+  return file.type.startsWith("image/") || isDocxFile(file);
+}
 
 export default function ImportarEditalPage() {
   const router = useRouter();
@@ -35,9 +46,12 @@ export default function ImportarEditalPage() {
   const [saving, setSaving] = useState(false);
 
   function handleFile(file: File) {
-    if (!file.type.startsWith("image/")) { toast.error("Envie uma imagem (JPG, PNG ou WEBP)."); return; }
+    if (!isValidFile(file)) {
+      toast.error("Formato invalido. Envie uma imagem (JPG, PNG, WEBP) ou documento Word (.docx).");
+      return;
+    }
     setFileObj(file);
-    setPreview(URL.createObjectURL(file));
+    setPreview(file.type.startsWith("image/") ? URL.createObjectURL(file) : null);
   }
 
   const onDrop = useCallback((e: React.DragEvent) => {
@@ -47,12 +61,12 @@ export default function ImportarEditalPage() {
     if (file) handleFile(file);
   }, []);
 
-  async function processarImagem() {
+  async function processarArquivo() {
     if (!fileObj) return;
     setEtapa("processando");
 
     const fd = new FormData();
-    fd.append("image", fileObj);
+    fd.append("file", fileObj);
 
     try {
       const res = await fetch("/api/importar-edital", { method: "POST", body: fd });
@@ -60,15 +74,11 @@ export default function ImportarEditalPage() {
       if (!res.ok) throw new Error(data.error ?? "Erro desconhecido");
 
       setExtraido(data);
-      setForm(f => ({
-        ...f,
-        concurso: data.concurso ?? "",
-        cargo: data.cargo ?? "",
-      }));
+      setForm(f => ({ ...f, concurso: data.concurso ?? "", cargo: data.cargo ?? "" }));
       setDisciplinas((data.disciplinas ?? []).map((d: Disciplina) => ({ nome: d.nome ?? "", carga_horaria: d.carga_horaria ?? 0 })));
       setEtapa("revisao");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao processar imagem.");
+      toast.error(err instanceof Error ? err.message : "Falha ao processar arquivo.");
       setEtapa("upload");
     }
   }
@@ -87,7 +97,7 @@ export default function ImportarEditalPage() {
 
   async function handleSalvar() {
     if (!form.codigo.trim() || !form.concurso.trim() || !form.local.trim() || !form.data_inicio) {
-      toast.error("Preencha Código, Concurso, Local e Data de início."); return;
+      toast.error("Preencha Codigo, Concurso, Local e Data de inicio."); return;
     }
     if (disciplinas.length === 0) { toast.error("Adicione ao menos uma disciplina."); return; }
     setSaving(true);
@@ -120,6 +130,8 @@ export default function ImportarEditalPage() {
   }
 
   if (etapa === "upload") {
+    const isDocx = fileObj ? isDocxFile(fileObj) : false;
+
     return (
       <div className="p-8 max-w-2xl mx-auto">
         <button onClick={() => router.back()} className="flex items-center gap-2 text-sm mb-6 transition-colors"
@@ -133,7 +145,7 @@ export default function ImportarEditalPage() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-navy)" }}>Importar Edital</h1>
           <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
-            Envie o print do edital e a IA extrai as disciplinas automaticamente.
+            Envie o print ou o documento Word do edital e a IA extrai as disciplinas automaticamente.
           </p>
         </div>
 
@@ -149,23 +161,60 @@ export default function ImportarEditalPage() {
           }}
         >
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ backgroundColor: "var(--color-primary-light)" }}>
-            <Upload size={28} style={{ color: "var(--color-primary)" }} />
+            {isDocx
+              ? <FileText size={28} style={{ color: "var(--color-primary)" }} />
+              : <Upload size={28} style={{ color: "var(--color-primary)" }} />
+            }
           </div>
+
           <div className="text-center">
-            <p className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
-              {preview ? "Trocar imagem" : "Clique ou arraste a imagem aqui"}
-            </p>
-            <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>JPG, PNG ou WEBP</p>
+            {fileObj ? (
+              <>
+                <p className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
+                  {fileObj.name}
+                </p>
+                <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
+                  {(fileObj.size / 1024).toFixed(0)} KB — clique para trocar
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
+                  Clique ou arraste o arquivo aqui
+                </p>
+                <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
+                  JPG, PNG, WEBP ou Word (.docx)
+                </p>
+              </>
+            )}
           </div>
+
           {preview && (
             <img src={preview} alt="Preview" className="rounded-xl max-h-48 object-contain shadow" />
           )}
+
+          {isDocx && fileObj && (
+            <div className="flex items-center gap-3 px-5 py-3 rounded-xl"
+              style={{ backgroundColor: "var(--color-primary-light)", border: "1px solid var(--color-primary)" }}>
+              <FileText size={20} style={{ color: "var(--color-primary)" }} />
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "var(--color-primary)" }}>{fileObj.name}</p>
+                <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>Documento Word pronto para extração</p>
+              </div>
+            </div>
+          )}
         </div>
 
-        <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+        />
 
         <div className="flex justify-end mt-6">
-          <Button onClick={processarImagem} disabled={!fileObj}>
+          <Button onClick={processarArquivo} disabled={!fileObj}>
             <Sparkles size={15} /> Extrair com IA
           </Button>
         </div>
@@ -196,7 +245,7 @@ export default function ImportarEditalPage() {
         onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-navy)")}
         onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-muted)")}
       >
-        <ArrowLeft size={15} /> Nova imagem
+        <ArrowLeft size={15} /> Novo arquivo
       </button>
 
       <div className="mb-8 flex items-start justify-between">
@@ -210,7 +259,6 @@ export default function ImportarEditalPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Dados da turma */}
         <div className="flex flex-col gap-4">
           <h2 className="font-semibold text-sm uppercase tracking-wide" style={{ color: "var(--color-text-secondary)" }}>Dados da Turma</h2>
 
@@ -254,14 +302,13 @@ export default function ImportarEditalPage() {
 
           {extraido && (
             <div className="mt-2 p-4 rounded-xl text-sm flex flex-col gap-1" style={{ backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }}>
-              <p className="font-semibold">Detectado pelo IA:</p>
+              <p className="font-semibold">Detectado pela IA:</p>
               {extraido.carga_horaria_total && <p>Carga total: {extraido.carga_horaria_total}h</p>}
               {extraido.valor && <p>Valor: {extraido.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>}
             </div>
           )}
         </div>
 
-        {/* Disciplinas */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-sm uppercase tracking-wide" style={{ color: "var(--color-text-secondary)" }}>
@@ -294,7 +341,7 @@ export default function ImportarEditalPage() {
                 />
                 <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>h</span>
                 <button onClick={() => removeDisciplina(i)} className="p-1 rounded-lg transition-all" style={{ color: "var(--color-text-muted)" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--color-primary)"; (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2"; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--color-error)"; (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)"; (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; }}
                 ><Trash2 size={13} /></button>
               </div>
