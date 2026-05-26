@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
-const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const PROMPT_BASE = `Você é um extrator de dados de editais de concursos públicos brasileiros.
 Extraia as informações no formato JSON abaixo.
-Retorne APENAS o JSON puro, sem markdown, sem explicação, sem \`\`\`.
+Retorne APENAS o JSON puro, sem markdown, sem explicação, sem aspas triplas.
 
 {
   "concurso": "nome do órgão/concurso",
   "cargo": "cargo do concurso",
-  "carga_horaria_total": número (somente o número, sem texto),
-  "valor": número decimal (somente o número, sem R$),
+  "carga_horaria_total": numero inteiro ou null,
+  "valor": numero decimal ou null,
   "disciplinas": [
-    { "nome": "nome da disciplina", "carga_horaria": número }
+    { "nome": "nome da disciplina", "carga_horaria": numero inteiro }
   ]
 }
 
 Regras:
-- disciplinas: extraia TODAS as linhas da tabela com nome e CH (carga horária)
+- disciplinas: extraia TODAS as linhas com nome e CH (carga horária)
 - Se não encontrar algum campo, use null
 - Ignore a coluna de professores
 - carga_horaria de cada disciplina deve ser número inteiro`;
@@ -33,8 +33,6 @@ export async function POST(req: NextRequest) {
     file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
     file.name.toLowerCase().endsWith(".docx");
 
-  const model = genai.getGenerativeModel({ model: "gemini-2.0-flash" });
-
   try {
     let responseText: string;
 
@@ -44,21 +42,36 @@ export async function POST(req: NextRequest) {
       if (!extracted.value.trim()) {
         return NextResponse.json({ error: "Não foi possível extrair texto do documento." }, { status: 400 });
       }
-      const result = await model.generateContent([
-        PROMPT_BASE + "\n\nDocumento:\n" + extracted.value.slice(0, 30000),
-      ]);
-      responseText = result.response.text().trim();
+
+      const result = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [{
+          role: "user",
+          content: PROMPT_BASE + "\n\nDocumento:\n" + extracted.value.slice(0, 20000),
+        }],
+        temperature: 0,
+      });
+      responseText = result.choices[0].message.content ?? "";
     } else {
       const base64 = Buffer.from(bytes).toString("base64");
-      const mimeType = file.type as "image/jpeg" | "image/png" | "image/webp";
-      const result = await model.generateContent([
-        { inlineData: { data: base64, mimeType } },
-        PROMPT_BASE,
-      ]);
-      responseText = result.response.text().trim();
+      const mimeType = file.type || "image/jpeg";
+
+      const result = await groq.chat.completions.create({
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        messages: [{
+          role: "user",
+          content: [
+            { type: "text", text: PROMPT_BASE },
+            { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
+          ],
+        }],
+        temperature: 0,
+      });
+      responseText = result.choices[0].message.content ?? "";
     }
 
-    const json = JSON.parse(responseText);
+    const clean = responseText.replace(/```json|```/g, "").trim();
+    const json = JSON.parse(clean);
     return NextResponse.json(json);
   } catch (err) {
     return NextResponse.json(
