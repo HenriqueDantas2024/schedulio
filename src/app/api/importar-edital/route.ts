@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
     file.name.toLowerCase().endsWith(".docx");
 
-  const model = genai.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genai.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   try {
     let responseText: string;
